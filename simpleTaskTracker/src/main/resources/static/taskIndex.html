@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker</title>
+    <link rel="stylesheet" href="taskStyles.css">
+   	
+</head>
+<body>
+   <div class="container">
+    	<h1>Task Tracker</h1>
+
+  
+     <form id="taskForm">
+            <input type="text" id="taskName" placeholder="Enter task name" required>
+            <label>
+                <input type="checkbox" id="completed"> Completed
+            </label>
+            <button type="button" id="add" onclick="addTask()">Add Task</button>
+        </form>
+
+    <table>
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+        </div>
+
+    <script src="taskScript.js"></script>
+    
+</body>
+</html>
