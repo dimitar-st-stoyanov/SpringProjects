@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            text-align: center;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            width: 100px;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Simple Calculator</h1>
+    <input type="number" id="num1" placeholder="Enter first number">
+    <input type="number" id="num2" placeholder="Enter second number">
+    
+    <br>
+    <button onclick="performOperation('add')">Add</button>
+    <button onclick="performOperation('subtract')">Subtract</button>
+    <button onclick="performOperation('multiply')">Multiply</button>
+    <button onclick="performOperation('divide')">Divide</button>
+    
+    <div id="result"></div>
+</div>
+
+<script>
+    function performOperation(operation) {
+        const num1 = parseFloat(document.getElementById('num1').value);
+        const num2 = parseFloat(document.getElementById('num2').value);
+        
+        if (isNaN(num1) || isNaN(num2)) {
+            document.getElementById('result').innerText = "Please enter valid numbers!";
+            return;
+        }
+        fetch(`/calculate?operation=${operation}&num1=${num1}&num2=${num2}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerText = `Result: ${data.result}`;
+            })
+            .catch(err => {
+                document.getElementById('result').innerText = "Error: " + err.message;
+            });
+    }
+</script>
+
+</body>
+</html>
