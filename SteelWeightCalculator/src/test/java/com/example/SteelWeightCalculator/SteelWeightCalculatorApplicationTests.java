@@ -1,10 +1,10 @@
-package com.example.StudentManagementSystem;
+package com.example.SteelWeightCalculator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class StudentManagementSystemApplicationTests {
+class SteelWeightCalculatorApplicationTests {
 
 	@Test
 	void contextLoads() {

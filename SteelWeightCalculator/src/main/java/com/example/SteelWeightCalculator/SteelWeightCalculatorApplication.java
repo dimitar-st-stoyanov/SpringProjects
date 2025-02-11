@@ -1,13 +1,13 @@
-package com.example.StudentManagementSystem;
+package com.example.SteelWeightCalculator;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class StudentManagementSystemApplication {
+public class SteelWeightCalculatorApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(StudentManagementSystemApplication.class, args);
+		SpringApplication.run(SteelWeightCalculatorApplication.class, args);
 	}
 
 }
