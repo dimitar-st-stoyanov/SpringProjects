@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE-edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steel Weight Calculator</title>
+<!-- <link rel="stylesheet" href="style.css">-->
+</head>
+<body>
+	<div class="container">
+		<h1>Steel Weight Calculator</h1>
+		<p>Enter material, thickness and size of the sheet to calculcate the exact weight</p>
+		<label for="material">Material:</label>
+			<select name="materials" id="materialSelection">
+				<option value="">--Please select material---</option>
+				<option value= "Carbon Steel">Carbon Steel</option>
+				<option value= "304">AISI 304</option>
+				<option value= "310">AISI 310</option>
+				<option value= "316">AISI 316</option>
+				<option value= "317">AISI 317</option>
+				<option value= "321">AISI 321</option>
+				<option value= "17-4-PH">17-4-PH</option>
+				<option value= "409">AISI 409</option>
+				<option value= "410">AISI 410</option>
+				<option value= "420">AISI 420</option>
+				<option value= "430">AISI 430</option>
+				<option value= "439">AISI 439</option>
+				<option value= "440C">AISI 440C</option>
+				<option value= "444">AISI 444</option>
+				<option value= "2205">AISI 2205</option>
+				<option value= "2507">AISI 2507</option>
+			</select><br>
+			<label for="thickness">Thickness:</label>
+			<input type="number" id="thickness"><br>
+			<label for="length">Length:</label>
+			<input type="number" id="length"><br>
+			<label for="width">Width:</label>
+			<input type="number" id="width"><br>
+			<button id="calculate" >Calculate</button>
+        	<br>
+        	<label for="total">Weight:</label>
+        	<span id="total"></span>
+			
+			
+	</div>
+	<script src="steelWeight.js"></script>
+</body>
+</html>
