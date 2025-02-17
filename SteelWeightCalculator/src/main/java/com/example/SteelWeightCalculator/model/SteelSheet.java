@@ -38,7 +38,7 @@ public class SteelSheet {
 		this.thickness = thickness;
 	}
 	
-	public double getDensity(String type) {
+	public double getDensity() {
 		double density = 0;
 		switch (type) {
 		case "304": density = 7.93; break;
