@@ -32,15 +32,14 @@
 				<option value= "2507">AISI 2507</option>
 			</select><br>
 			<label for="thickness">Thickness:</label>
-			<input type="number" id="thickness"><br>
+			<input type="number" id="thickness" min="0.1"><br>
 			<label for="length">Length:</label>
-			<input type="number" id="length"><br>
+			<input type="number" id="length" min="0.1"><br>
 			<label for="width">Width:</label>
-			<input type="number" id="width"><br>
-			<button id="calculate" >Calculate</button>
+			<input type="number" id="width" min="0.1"><br>
+			<button id="calculate" onclick="calculate()">Calculate</button>
         	<br>
-        	<label for="total">Weight:</label>
-        	<span id="total"></span>
+        	<div id="result"></div>
 			
 			
 	</div>

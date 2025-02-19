@@ -24,6 +24,6 @@ public class SteelWeightCalculatorController {
 								 	@RequestParam double width,
 								 	@RequestParam double thickness) {
 		SteelSheet sheet = new SteelSheet(type, length, width, thickness);
-		return service.getWeight(sheet);
+		return service.getWeight(sheet)*1000;
 	}
 }
