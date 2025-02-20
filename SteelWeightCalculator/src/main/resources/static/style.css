@@ -1,0 +1,66 @@
+@charset "UTF-8";
+
+body {
+	font-family: Arial, sans-serif;
+	background-color:#f4f4f4;
+	display: flex;
+	justify-content:center;
+	height: 100vh;
+	margin: 0;
+}
+
+.container {
+	background: white;
+	padding: 20px;
+	border-radius: 10px;
+	box-shadow: 0 0 10px rgba(0,0,0,0.1);
+	text-align: center;
+	width: 300px;
+}
+
+h1 {
+	font-size: 20px;
+	margin-bottom: 10px;
+}
+
+
+p {
+	font-size: 14px;
+	color: #666
+}
+
+label{
+	display: block;
+	font-weight: bold;
+	margin-top: 10px;
+	text-align: left;
+}
+
+input, select {
+	width: 100%;
+	padding: 8px;
+	margin-top: 5px;
+	border: 1 px solid #ccc;
+	border-radius: 5px;
+	font-size: 14px;
+}
+
+button{
+	width: 100%;
+	padding: 10px;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	font-size: 16px;
+	cursor: pointer;
+	margin-top: 15px;
+}
+
+#result {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    display: block;
+    margin-top: 10px;
+}
