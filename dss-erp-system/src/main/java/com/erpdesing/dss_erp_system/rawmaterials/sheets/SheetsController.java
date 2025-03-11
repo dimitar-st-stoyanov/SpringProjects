@@ -1,4 +1,4 @@
-package com.erpdesing.dss_erp_system.rawmaterials;
+package com.erpdesing.dss_erp_system.rawmaterials.sheets;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,12 +14,12 @@ public class SheetsController {
 	}
 	
 	@GetMapping("/sheets")
-	  public Iterable<Sheets> findAllEmployees() {
+	  public Iterable<Sheets> findAllSheets() {
 	    return this.sheetRepository.findAll();
 	  }
 
-	  @PostMapping("/Sheets")
-	  public Sheets addOneEmployee(@RequestBody Sheets sheet) {
+	  @PostMapping("/sheets")
+	  public Sheets addOneSheet(@RequestBody Sheets sheet) {
 	    return this.sheetRepository.save(sheet);
 	  }
 }
