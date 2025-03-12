@@ -24,14 +24,25 @@ public class RectTube {
 	private RectTube() {};
 	
 	public RectTube(String internalName, String material, double sideA, double sideB, double thickness, double length, double weight) {
-		this.setInternalName(internalName);
+		
 		this.setMaterial(material);
 		this.setSideA(sideA);
 		this.setSideB(sideB);
 		this.setThickness(thickness);
 		this.setLength(length);
 		this.setWeight(weight);
+		updateInternalName();
 		
+	}
+	
+	public void updateInternalName() {
+		 {
+				if(sideA>sideB) {
+					this.internalName = String.format("Tube %.0fx%.0fx%.0f %s", sideA, sideB, thickness, material);
+				}else {
+					this.internalName = String.format("Tube %.0fx%.0fx%.0f %s", sideB, sideA, thickness, material);
+				}
+		}
 	}
 
 	public int getId() {
@@ -41,9 +52,7 @@ public class RectTube {
 		return internalName;
 	}
 
-	public void setInternalName(String internalName) {
-		this.internalName = internalName;
-	}
+	
 
 	public String getMaterial() {
 		return material;
@@ -51,6 +60,7 @@ public class RectTube {
 
 	public void setMaterial(String material) {
 		this.material = material;
+		updateInternalName();
 	}
 
 	public double getSideA() {
@@ -59,6 +69,7 @@ public class RectTube {
 
 	public void setSideA(double sideA) {
 		this.sideA = sideA;
+		updateInternalName();
 	}
 
 	public double getSideB() {
@@ -67,6 +78,7 @@ public class RectTube {
 
 	public void setSideB(double sideB) {
 		this.sideB = sideB;
+		updateInternalName();
 	}
 
 	public double getThickness() {
@@ -75,6 +87,7 @@ public class RectTube {
 
 	public void setThickness(double thickness) {
 		this.thickness = thickness;
+		updateInternalName();
 	}
 
 	public double getWeight() {

@@ -23,13 +23,21 @@ public class Tube {
 	
 	private Tube() {};
 	
-	public Tube(String internalName, String material, double diameter, double thickness, double length, double weight) {
-		this.setInternalName(internalName);
+	
+    
+	public Tube(String material, double diameter, double thickness, double length, double weight) {
+		
 		this.setMaterial(material);
 		this.setDiameter(diameter);
 		this.setThickness(thickness);
 		this.setLength(length);
-		this.setWeight(weight);
+		this.setWeight(weight);	
+		updateInternalName();
+		
+	}
+	
+	public void updateInternalName() {
+		this.internalName = String.format("Tube %.2fx%.2f %s", diameter, thickness, material);
 	}
 	
 	public int getId() {
@@ -40,16 +48,14 @@ public class Tube {
 		return internalName;
 	}
 
-	public void setInternalName(String internalName) {
-		this.internalName = internalName;
-	}
-
+	
 	public double getDiameter() {
 		return diameter;
 	}
 
 	public void setDiameter(double diameter) {
 		this.diameter = diameter;
+		updateInternalName();
 	}
 
 	public String getMaterial() {
@@ -58,6 +64,7 @@ public class Tube {
 
 	public void setMaterial(String material) {
 		this.material = material;
+		updateInternalName();
 	}
 
 	public double getThickness() {
@@ -66,6 +73,7 @@ public class Tube {
 
 	public void setThickness(double thickness) {
 		this.thickness = thickness;
+		updateInternalName();
 	}
 
 	public double getLength() {
