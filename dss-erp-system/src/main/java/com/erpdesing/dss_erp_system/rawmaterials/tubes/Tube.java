@@ -1,4 +1,4 @@
-package com.erpdesing.dss_erp_system.rawmaterial.tubes;
+package com.erpdesing.dss_erp_system.rawmaterials.tubes;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
