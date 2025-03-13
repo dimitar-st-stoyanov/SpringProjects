@@ -1,5 +1,7 @@
 package com.erpdesing.dss_erp_system.rawmaterials.sheets;
 
+import java.util.Random;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,18 +25,30 @@ public class Sheets {
 	private Sheets() {};
 	
 	public Sheets(String internalName, String material, double thickness, double length, double width, double weight) {
-		this.setInternalName(internalName);
+	
 		this.setMaterial(material);
 		this.setThickness(thickness);
 		this.setLength(length);
 		this.setWidth(width);
 		this.setWeight(weight);
+		updateName();
+		
 	}
+	
 	
 	public int getId() {
 		return id;
 	}
 
+	public void updateName() {
+		
+		if(thickness%1==0) {
+			this.internalName = String.format("Sheet %s %.0f mm %.0fx%.0f", material, thickness, length, width);
+			}else {
+				this.internalName = String.format("Sheet %s %.1f mm %.0fx%.0f", material, thickness, length, width);
+			}
+		
+	}
 	public String getInternalName() {
 		return internalName;
 	}
@@ -49,6 +63,7 @@ public class Sheets {
 
 	public void setMaterial(String material) {
 		this.material = material;
+		updateName();
 	}
 
 	public double getThickness() {
@@ -57,6 +72,7 @@ public class Sheets {
 
 	public void setThickness(double thickness) {
 		this.thickness = thickness;
+		updateName();
 	}
 
 	public double getLength() {
@@ -65,6 +81,7 @@ public class Sheets {
 
 	public void setLength(double length) {
 		this.length = length;
+		updateName();
 	}
 
 	public double getWidth() {
@@ -73,6 +90,7 @@ public class Sheets {
 
 	public void setWidth(double width) {
 		this.width = width;
+		updateName();
 	}
 
 	public double getWeight() {

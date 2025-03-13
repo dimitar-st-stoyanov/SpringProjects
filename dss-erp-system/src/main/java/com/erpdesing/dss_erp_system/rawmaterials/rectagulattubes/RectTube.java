@@ -38,9 +38,17 @@ public class RectTube {
 	public void updateInternalName() {
 		 {
 				if(sideA>sideB) {
+					if(thickness%1==0) {
 					this.internalName = String.format("Tube %.0fx%.0fx%.0f %s", sideA, sideB, thickness, material);
+					}else {
+						this.internalName = String.format("Tube %.0fx%.0fx%.1f %s", sideA, sideB, thickness, material);
+					}
 				}else {
+					if(thickness%1==0) {
 					this.internalName = String.format("Tube %.0fx%.0fx%.0f %s", sideB, sideA, thickness, material);
+					}else{
+						this.internalName = String.format("Tube %.0fx%.0fx%.1f %s", sideB, sideA, thickness, material);
+					}
 				}
 		}
 	}

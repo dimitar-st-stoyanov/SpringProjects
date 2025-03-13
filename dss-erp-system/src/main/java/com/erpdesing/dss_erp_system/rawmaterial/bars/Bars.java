@@ -1,4 +1,4 @@
-package com.erpdesing.dss_erp_system.rawmaterial.tubes;
+package com.erpdesing.dss_erp_system.rawmaterial.bars;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,8 +7,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "tubes")
-public class Tube {
+@Table(name = "bars")
+public class Bars {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,19 +17,18 @@ public class Tube {
 	private String internalName;
 	private String material;
 	private double diameter;
-	private double thickness;
 	private double length;
 	private double weight;
 	
-	private Tube() {};
+	private Bars() {};
 	
 	
     
-	public Tube(String material, double diameter, double thickness, double length, double weight) {
+	public Bars(String material, double diameter, double length, double weight) {
 		
 		this.setMaterial(material);
 		this.setDiameter(diameter);
-		this.setThickness(thickness);
+		
 		this.setLength(length);
 		this.setWeight(weight);	
 		updateInternalName();
@@ -37,19 +36,13 @@ public class Tube {
 	}
 	
 	public void updateInternalName() {
-		if(thickness%1==0) {
+		
 			if(diameter%1==0) {
-				this.internalName = String.format("Tube D%.0fx%.0f %s", diameter, thickness, material);
+				this.internalName = String.format("Bar D%.0f %s", diameter, material);
 			}else {
-				this.internalName = String.format("Tube D%.1fx%.0f %s", diameter, thickness, material);
+				this.internalName = String.format("Bar D%.1f %s", diameter, material);
 			}
-		}else {
-			if(diameter%1==0) {
-				this.internalName = String.format("Tube D%.0fx%.1f %s", diameter, thickness, material);
-			}else {
-				this.internalName = String.format("Tube D%.1fx%.1f %s", diameter, thickness, material);
-			}
-		}
+		
 		
 	}
 	
@@ -80,15 +73,7 @@ public class Tube {
 		updateInternalName();
 	}
 
-	public double getThickness() {
-		return thickness;
-	}
-
-	public void setThickness(double thickness) {
-		this.thickness = thickness;
-		updateInternalName();
-	}
-
+	
 	public double getLength() {
 		return length;
 	}
