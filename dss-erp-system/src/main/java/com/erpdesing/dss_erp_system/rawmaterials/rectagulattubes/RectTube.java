@@ -18,19 +18,15 @@ public class RectTube {
 	private double sideA;
 	private double sideB;
 	private double thickness;
-	private double length;
-	private double weight;
 	
 	private RectTube() {};
 	
-	public RectTube(String internalName, String material, double sideA, double sideB, double thickness, double length, double weight) {
+	public RectTube(String internalName, String material, double sideA, double sideB, double thickness) {
 		
 		this.setMaterial(material);
 		this.setSideA(sideA);
 		this.setSideB(sideB);
 		this.setThickness(thickness);
-		this.setLength(length);
-		this.setWeight(weight);
 		updateInternalName();
 		
 	}
@@ -98,19 +94,4 @@ public class RectTube {
 		updateInternalName();
 	}
 
-	public double getWeight() {
-		return weight;
-	}
-
-	public void setWeight(double weight) {
-		this.weight = weight;
-	}
-
-	public double getLength() {
-		return length;
-	}
-
-	public void setLength(double length) {
-		this.length = length;
-	}
 }

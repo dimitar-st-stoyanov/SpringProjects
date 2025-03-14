@@ -1,7 +1,7 @@
 package com.erpdesing.dss_erp_system.rawmaterials.tubes;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TubeRepository extends CrudRepository<Tube, Integer> {
+public interface TubeRepository extends JpaRepository<Tube, Integer> {
 
 }

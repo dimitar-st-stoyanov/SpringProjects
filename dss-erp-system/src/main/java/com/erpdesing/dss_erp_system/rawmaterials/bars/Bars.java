@@ -17,19 +17,16 @@ public class Bars {
 	private String internalName;
 	private String material;
 	private double diameter;
-	private double length;
 	private double weight;
 	
 	private Bars() {};
 	
 	
     
-	public Bars(String material, double diameter, double length, double weight) {
+	public Bars(String material, double diameter, double weight) {
 		
 		this.setMaterial(material);
 		this.setDiameter(diameter);
-		
-		this.setLength(length);
 		this.setWeight(weight);	
 		updateInternalName();
 		
@@ -72,16 +69,7 @@ public class Bars {
 		this.material = material;
 		updateInternalName();
 	}
-
 	
-	public double getLength() {
-		return length;
-	}
-
-	public void setLength(double length) {
-		this.length = length;
-	}
-
 	public double getWeight() {
 		return weight;
 	}

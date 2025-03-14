@@ -11,26 +11,24 @@ import jakarta.persistence.Table;
 public class Tube {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	
 	private int id;
 	private String internalName;
 	private String material;
 	private double diameter;
 	private double thickness;
-	private double length;
 	private double weight;
 	
 	private Tube() {};
 	
 	
     
-	public Tube(String material, double diameter, double thickness, double length, double weight) {
+	public Tube(String material, double diameter, double thickness, double weight) {
 		
 		this.setMaterial(material);
 		this.setDiameter(diameter);
 		this.setThickness(thickness);
-		this.setLength(length);
 		this.setWeight(weight);	
 		updateInternalName();
 		
@@ -87,14 +85,6 @@ public class Tube {
 	public void setThickness(double thickness) {
 		this.thickness = thickness;
 		updateInternalName();
-	}
-
-	public double getLength() {
-		return length;
-	}
-
-	public void setLength(double length) {
-		this.length = length;
 	}
 
 	public double getWeight() {
