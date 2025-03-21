@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "bars")
-public class Bars {
+public class Bars{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +17,7 @@ public class Bars {
 	private String internalName;
 	private String material;
 	private double diameter;
-	private double weight;
+	
 	
 	private Bars() {};
 	
@@ -27,7 +27,6 @@ public class Bars {
 		
 		this.setMaterial(material);
 		this.setDiameter(diameter);
-		this.setWeight(weight);	
 		updateInternalName();
 		
 	}
@@ -70,12 +69,5 @@ public class Bars {
 		updateInternalName();
 	}
 	
-	public double getWeight() {
-		return weight;
-	}
-
-	public void setWeight(double weight) {
-		this.weight = weight;
-	}
 	
 }

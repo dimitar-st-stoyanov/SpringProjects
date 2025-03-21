@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table (name="rectangulartubes")
-public class RectTube {
+public class RectTube{
 	@Id
 	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	
