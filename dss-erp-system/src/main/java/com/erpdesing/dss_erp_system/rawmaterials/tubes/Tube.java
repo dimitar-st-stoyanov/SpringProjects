@@ -18,18 +18,18 @@ public class Tube {
 	private String material;
 	private double diameter;
 	private double thickness;
-	private double weight;
+	
 	
 	private Tube() {};
 	
 	
     
-	public Tube(String material, double diameter, double thickness, double weight) {
+	public Tube(String material, double diameter, double thickness) {
 		
 		this.setMaterial(material);
 		this.setDiameter(diameter);
 		this.setThickness(thickness);
-		this.setWeight(weight);	
+			
 		updateInternalName();
 		
 	}
@@ -85,14 +85,6 @@ public class Tube {
 	public void setThickness(double thickness) {
 		this.thickness = thickness;
 		updateInternalName();
-	}
-
-	public double getWeight() {
-		return weight;
-	}
-
-	public void setWeight(double weight) {
-		this.weight = weight;
 	}
 	
 }

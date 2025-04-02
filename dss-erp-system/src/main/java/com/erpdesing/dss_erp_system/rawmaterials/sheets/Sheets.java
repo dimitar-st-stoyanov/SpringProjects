@@ -1,5 +1,6 @@
 package com.erpdesing.dss_erp_system.rawmaterials.sheets;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,23 +13,27 @@ public class Sheets{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	
+	@Column(name = "sheet_id")
 	private int id;
+	
 	private String internalName;
 	private String material;
 	private double thickness;
 	private double length;
 	private double width;
 	private double weight;
+	private double price;
 	
 	private Sheets() {};
 	
-	public Sheets(String internalName, String material, double thickness, double length, double width, double weight) {
+	public Sheets(String internalName, String material, double thickness, double length, double width, double weight, double price) {
 	
 		this.setMaterial(material);
 		this.setThickness(thickness);
 		this.setLength(length);
 		this.setWidth(width);
 		this.setWeight(weight);
+		this.setPrice(price);
 		updateName();
 		
 	}
@@ -97,5 +102,13 @@ public class Sheets{
 
 	public void setWeight(double weight) {
 		this.weight = weight;
+	}
+
+	public double getPrice() {
+		return price;
+	}
+
+	public void setPrice(double price) {
+		this.price = price;
 	}
 }
