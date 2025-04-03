@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "tasks")
+//@Table(name = "tasks")
 public class Task {
 	
 	@Id
@@ -17,11 +17,12 @@ public class Task {
 	private Long id;
 	
 	private String title;
+	
 	private boolean isCompleted;
 	
 	public Task() {};
 	
-	public String gettitle() {
+	public String getTitle() {
 		return title;
 	}
 	public void setTitle(String title) {
