@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@5.0.0/bundles/stomp.umd.js"></script>
+
+<title>DSS Real-Time Chat Application</title>
+</head>
+<body>
+	<div class="container mt-4">
+		<h1 class="text-center">Real-Time Chat Application</h1>
+	</div>
+	<div id="chat"
+		class="border rounded p-3 mb-3"
+		style="height: 300px; overflow-y: auto;">
+	</div>
+	
+	<div class="input-group mb-3">
+	<input id="senderInput" type="text" class="form-control"
+			placeholder="Your name..."/>
+	</div>
+	
+	<div class="input-group mb-3">
+	<input id="messageInput" type="text" class="form-control"
+			placeholder="Type a message..."/>
+	</div>
+	
+	<div id="input-group-append">
+	<button id="sendMessage" class="btn btn-primary">Send</button>
+	</div>
+
+</body>
+<script>
+
+		function setConnected(connected){
+
+		document.getElementById("sendMessage").disabled = !connected;
+		}
+		
+		
+		function connect(){
+		var socket = new SockJS('/chat');
+		stompClient = Stomp.over(socket);
+		stompClient.connect({}, function (frame){
+			setConnected(true);
+			stompClient.subscribe('/topic/messages', function (message){
+			showMessage(JSON.parse(message.body));
+			});
+		});
+
+		
+		}
+</script>
+</html>
