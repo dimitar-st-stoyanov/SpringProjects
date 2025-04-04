@@ -10,7 +10,7 @@ import com.example.dss_chat_app.model.ChatMessage;
 @Controller
 public class ChatController {
 
-	@MessageMapping("/sendMessange") //send from
+	@MessageMapping("/sendMessage") //send from
 	@SendTo("/topic/messages") //presented to
 	public ChatMessage sendMessage(ChatMessage message) {
 		return message;

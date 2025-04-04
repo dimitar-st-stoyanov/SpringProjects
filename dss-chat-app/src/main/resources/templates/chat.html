@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@5.0.0/bundles/stomp.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.1/stomp.min.js"></script>
 
 <title>DSS Real-Time Chat Application</title>
 </head>
@@ -49,8 +49,38 @@
 			showMessage(JSON.parse(message.body));
 			});
 		});
-
-		
 		}
+
+		function showMessage(message){
+
+			var chat = document.getElementById("chat");
+			var messageElement = document.createElement('div');
+			
+			messageElement.textContent = message.sender + " : " + message.content;
+			
+			messageElement.class = "border-bottom mb-1";
+			chat.appendChild(messageElement);
+			chat.scrollTop = chat.scrollHeight;
+		}
+		
+		
+		function sendMessage(message){
+
+		var sender = document.getElementById("senderInput").value;
+		var content = document.getElementById("messageInput").value;
+		var chatMessage = {
+
+		sender : sender,
+		content : content
+		}
+		
+		stompClient.send("/app/sendMessage", {}, JSON.stringify(chatMessage));
+		
+		document.getElementById('messageInput').value = '';
+		}
+		
+		document.getElementById('sendMessage').onclick = sendMessage;
+		window.onload = connect;
+
 </script>
 </html>
