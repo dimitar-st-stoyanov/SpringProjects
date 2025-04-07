@@ -1,5 +1,8 @@
 package com.example.dss_voting_app.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.example.dss_voting_app.model.Poll;
@@ -20,6 +23,20 @@ public class PollService {
 	public Poll createPoll(Poll poll) {
 		return pollRepository.save(poll);
 	}
+
+
+	public List<Poll> getAllPolls() {
+		
+		return pollRepository.findAll();
+	}
+
+
+	public Optional<Poll> getPoll(Long id) {
+		
+		return pollRepository.findById(id);
+	}
+	
+	
 	
 
 }
