@@ -3,6 +3,7 @@ package com.example.dss_voting_app.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,13 +20,16 @@ public class Poll {
 	@Id
 	@GeneratedValue (strategy=GenerationType.IDENTITY)
 	private Long id;
+	
+	@Column(name = "question")
 	private String question;
 	
-	@ElementCollection
-	private List<String> options = new ArrayList<>();
 	
 	@ElementCollection
-	private List<String> votes = new ArrayList<>();
+	private List<OptionVote> options = new ArrayList<>();
+	
+	/*@ElementCollection
+	private List<String> votes = new ArrayList<>();*/
 	
 	
 	
