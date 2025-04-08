@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.dss_voting_app.model.OptionVote;
 import com.example.dss_voting_app.model.Poll;
 import com.example.dss_voting_app.repository.PollRepository;
 
@@ -34,6 +35,27 @@ public class PollService {
 	public Optional<Poll> getPoll(Long id) {
 		
 		return pollRepository.findById(id);
+	}
+
+
+	public void vote(Long pollId, int optionIndex) {
+		
+		Poll currentPoll = pollRepository.findById(pollId)
+				.orElseThrow(()-> new RuntimeException("Poll not found"));
+		
+		List<OptionVote> optionsList = currentPoll.getOptions();
+		
+		if(optionIndex<0 || optionIndex>=optionsList.size()) {
+			throw new IllegalArgumentException("Invalid option index");
+		}
+		
+		OptionVote selectedOption = optionsList.get(optionIndex);
+		
+		selectedOption.setVoteCount(selectedOption.getVoteCount()+1);
+		
+		pollRepository.save(currentPoll);
+		
+				
 	}
 	
 	
