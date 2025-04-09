@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OptionVote {
 	
-	private String option;
+	private String optionText;
 	private Long voteCount = 0L;
 	
 	
