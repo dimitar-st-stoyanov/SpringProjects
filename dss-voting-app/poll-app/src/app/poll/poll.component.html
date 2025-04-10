@@ -16,11 +16,17 @@
             [(ngModel)]="option.optionText"
             placeholder="Option.."
             class="form-control"
-            required/>
+            required
+            />
+            <button *ngIf="newPoll.options.length > 2"
+                (click)="newPoll.options.splice(i,1)"
+                class="btn btn-danger">Remove</button>
 
     </div>
 </div>
-<button (click)="createPoll()" class="btn btn-primary">Create Poll</button>
+
+<button (click)="addOption()" class="btn btn-primary text-center">Add another option</button>
+<button (click)="createPoll()" class="btn btn-success text-center">Create Poll</button>
 <h2 class="mt-4 text-center">Available polls</h2>
 <div class="polls-list">
     <div *ngFor = "let poll of polls" class="border rounded p-3 mb-3">

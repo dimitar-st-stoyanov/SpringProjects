@@ -22,6 +22,7 @@ public class PollService {
 
 
 	public Poll createPoll(Poll poll) {
+		poll.setId(null);
 		return pollRepository.save(poll);
 	}
 
