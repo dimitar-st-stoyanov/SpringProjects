@@ -1,6 +1,7 @@
 package com.ecomm.project.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +14,9 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "categoryId")
     private Long categoryId;
+
     @Column(name = "categoryName")
+    @NotBlank
     private String categoryName;
 
     /*public Category() {
