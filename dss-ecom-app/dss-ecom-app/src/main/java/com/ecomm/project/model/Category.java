@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Entity(name = "categories")
 @Data
 @NoArgsConstructor
 public class Category {
@@ -24,12 +24,12 @@ public class Category {
     /*public Category() {
     }*/
 
-    public Category(Long categoryId, String categoryName) {
+   /* public Category(Long categoryId, String categoryName) {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
     }
 
-   /* public Long getCategoryId() {
+   public Long getCategoryId() {
         return categoryId;
     }
 
