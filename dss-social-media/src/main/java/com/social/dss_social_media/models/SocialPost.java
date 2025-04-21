@@ -9,12 +9,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SocialProfile {
+public class SocialPost {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(mappedBy = "socialProfile")
-    //@JoinColumn(name = "social_user")
-    private SocialUser socialUser;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private SocialUser user;
 }
