@@ -10,6 +10,4 @@ public class DssSocialMediaApplication {
 		SpringApplication.run(DssSocialMediaApplication.class, args);
 	}
 
-
-
 }

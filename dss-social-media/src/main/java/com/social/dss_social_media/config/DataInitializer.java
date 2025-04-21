@@ -70,9 +70,9 @@ public class DataInitializer {
             SocialPost post3 = new SocialPost();
 
             //Assoc post with users;
-            post1.setUser(user1);
-            post2.setUser(user2);
-            post3.setUser(user3);
+            post1.setSocialUser(user1);
+            post2.setSocialUser(user2);
+            post3.setSocialUser(user3);
 
             //Save posts to DB
             postRepository.save(post1);
@@ -85,9 +85,9 @@ public class DataInitializer {
             SocialProfile profile3 = new SocialProfile();
 
             //Assoc profiles with users
-            profile1.setSocialUser(user1);
-            profile2.setSocialUser(user2);
-            profile3.setSocialUser(user3);
+            profile1.setUser(user1);
+            profile2.setUser(user2);
+            profile3.setUser(user3);
 
             //Save profile to DB
             socialProfileRepository.save(profile1);

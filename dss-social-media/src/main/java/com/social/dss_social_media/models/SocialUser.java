@@ -16,11 +16,11 @@ public class SocialUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "social_profile_id")
+    @OneToOne(mappedBy = "user")
+    //@JoinColumn(name = "social_profile_id")
     private SocialProfile socialProfile;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "socialUser")
     private List<SocialPost> posts = new ArrayList<>();
 
     @ManyToMany
@@ -29,7 +29,7 @@ public class SocialUser {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
-    Set<SocialGroups> groups = new HashSet<>();
+    private Set<SocialGroups> groups = new HashSet<>();
 
     @Override
     public int hashCode(){
