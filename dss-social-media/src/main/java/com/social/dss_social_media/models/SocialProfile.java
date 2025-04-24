@@ -1,5 +1,6 @@
 package com.social.dss_social_media.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,5 +17,14 @@ public class SocialProfile {
 
     @OneToOne
     @JoinColumn(name = "social_user")
+    @JsonIgnore
     private SocialUser user;
+    private String description;
+
+    public void setSocialUser(SocialUser socialUser){
+        this.user = socialUser;
+        if(user.getSocialProfile()!=this){
+            user.setSocialProfile(this);
+        }
+    }
 }

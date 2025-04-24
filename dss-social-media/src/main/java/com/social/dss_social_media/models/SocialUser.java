@@ -1,5 +1,6 @@
 package com.social.dss_social_media.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,11 +17,13 @@ public class SocialUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     //@JoinColumn(name = "social_profile_id")
+
     private SocialProfile socialProfile;
 
     @OneToMany(mappedBy = "socialUser")
+
     private List<SocialPost> posts = new ArrayList<>();
 
     @ManyToMany
@@ -29,10 +32,16 @@ public class SocialUser {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
+
     private Set<SocialGroups> groups = new HashSet<>();
 
     @Override
     public int hashCode(){
         return Objects.hash(id);
+    }
+
+    public void setSocialProfile(SocialProfile socialProfile){
+        socialProfile.setUser(this);
+        this.socialProfile = socialProfile;
     }
 }
