@@ -15,8 +15,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -31,10 +34,11 @@ public class ProductServiceImpl implements ProductService {
     private ModelMapper modelMapper;
 
     @Override
-    public ProductDTO addProduct(Product product, Long categoryId) {
+    public ProductDTO addProduct(ProductDTO productDTO, Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(()->
                         new ResourceNotFoundException("Category", "categoryId", categoryId));
+        Product product = modelMapper.map(productDTO, Product.class);
         product.setImage("default.png");
         product.setCategory(category);
         double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
@@ -101,11 +105,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO updateProduct(Long productId, Product product) {
+    public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
         //Get the existing product from DB
         Product existingProduct = productRespository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product","productId", productId));
          //Update
+        Product product = modelMapper.map(productDTO, Product.class);
         existingProduct.setProductName(product.getProductName());
         existingProduct.setDescription(product.getDescription());
         existingProduct.setQuantity(product.getQuantity());
@@ -131,5 +136,38 @@ public class ProductServiceImpl implements ProductService {
         productRespository.delete(deletedProduct);
 
         return deletedProductDTO;
+    }
+
+    @Override
+    public ProductDTO updateProductImage(Long productId, MultipartFile image) {
+        Product product = productRespository.findById(productId)
+                .orElseThrow(()-> new ResourceNotFoundException("Product", "productId", productId));
+
+        //upload image to server
+        //Get the file name
+        String path = "images/";
+
+        String fileName = uploadImage(path, image);
+
+        //Update the file name to the product
+        product.setImage(fileName);
+        //save
+        Product updatedProduct = productRespository.save(product);
+        //return
+        return modelMapper.map(updatedProduct, ProductDTO.class);
+    }
+
+    private String uploadImage(String path, MultipartFile file) {
+        //Get the file name of current / original file
+        String originalFileName = file.getName();
+        //Generate a unique file name
+        String randomId = UUID.randomUUID().toString();
+        String fileName = randomId.concat(originalFileName.substring((originalFileName.lastIndexOf("."))));
+        String filePath = path + File.pathSeparator + fileName;
+        //Rename the file
+        //Check if path exist and create
+        //Upload to server
+        //Return
+
     }
 }

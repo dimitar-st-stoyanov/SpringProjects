@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
@@ -23,11 +24,11 @@ public class ProductController {
     }
 
     @PostMapping("/admin/categories/{categoryId}/product")
-    public ResponseEntity<ProductDTO> addProduct(@RequestBody Product product,
+    public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO productDTO,
                                                  @PathVariable Long categoryId){
 
-       ProductDTO productDTO =  productService.addProduct(product,categoryId);
-        return new ResponseEntity<>(productDTO, HttpStatus.CREATED);
+       ProductDTO savedProductDTO =  productService.addProduct(productDTO,categoryId);
+        return new ResponseEntity<>(savedProductDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/public/products")
@@ -55,10 +56,10 @@ public class ProductController {
     }
 
     @PutMapping("/admin/products/{productId}")
-    public ResponseEntity<ProductDTO> updateProduct(@RequestBody Product product,
+    public ResponseEntity<ProductDTO> updateProduct(@RequestBody ProductDTO productDTO,
                                                     @PathVariable Long productId){
 
-        ProductDTO updatedProductDTO = productService.updateProduct(productId,product);
+        ProductDTO updatedProductDTO = productService.updateProduct(productId,productDTO);
         return new ResponseEntity<>(updatedProductDTO, HttpStatus.OK);
     }
 
@@ -67,6 +68,13 @@ public class ProductController {
         ProductDTO deletedProduct = productService.deleteProduct(productId);
 
         return new ResponseEntity<>(deletedProduct, HttpStatus.OK);
+    }
+
+    @PutMapping("/products/{productId}/image")
+    public ResponseEntity<ProductDTO> updateProductImage(@PathVariable Long productId,
+                                                         @RequestParam("Image")MultipartFile image){
+        ProductDTO updatedProduct = productService.updateProductImage(productId,image);
+        return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
     }
 
 }
