@@ -10,6 +10,7 @@ import com.ecomm.project.repositories.CategoryRepository;
 import com.ecomm.project.repositories.ProductRespository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +18,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -33,22 +33,35 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private FileService fileService;
+
+    @Value("${project.image}")
+    private String path;
+
     @Override
     public ProductDTO addProduct(ProductDTO productDTO, Long categoryId) {
+        //Check if product is already present -> throws product with name already exist
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(()->
                         new ResourceNotFoundException("Category", "categoryId", categoryId));
+
         Product product = modelMapper.map(productDTO, Product.class);
-        product.setImage("default.png");
-        product.setCategory(category);
-        double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
-        product.setSpecialPrice(specialPrice);
-        Product savedProduct = productRespository.save(product);
-        return modelMapper.map(savedProduct, ProductDTO.class);
+        /*if(productRespository.findByProductNameLikeIgnoreCase(product.getProductName()).isPresent()){
+
+        }else {*/
+            product.setImage("default.png");
+            product.setCategory(category);
+            double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
+            product.setSpecialPrice(specialPrice);
+            Product savedProduct = productRespository.save(product);
+            return modelMapper.map(savedProduct, ProductDTO.class);
+        //}
     }
 
     @Override
     public ProductResponse getAllProducts(int pageNumber, int pageSize, String sortBy, String sortOrder) {
+        //check if product size is 0
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
@@ -106,10 +119,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
-        //Get the existing product from DB
+
         Product existingProduct = productRespository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product","productId", productId));
-         //Update
+
         Product product = modelMapper.map(productDTO, Product.class);
         existingProduct.setProductName(product.getProductName());
         existingProduct.setDescription(product.getDescription());
@@ -121,7 +134,7 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setSpecialPrice(product.getSpecialPrice());
 
 
-        //Save
+
         Product savedProduct = productRespository.save(existingProduct);
         return modelMapper.map(savedProduct, ProductDTO.class);
     }
@@ -139,35 +152,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO updateProductImage(Long productId, MultipartFile image) {
+    public ProductDTO updateProductImage(Long productId, MultipartFile image) throws IOException {
         Product product = productRespository.findById(productId)
                 .orElseThrow(()-> new ResourceNotFoundException("Product", "productId", productId));
 
-        //upload image to server
-        //Get the file name
-        String path = "images/";
+        String fileName = fileService.uploadImage(path, image);
 
-        String fileName = uploadImage(path, image);
-
-        //Update the file name to the product
         product.setImage(fileName);
-        //save
+
         Product updatedProduct = productRespository.save(product);
-        //return
+
         return modelMapper.map(updatedProduct, ProductDTO.class);
     }
 
-    private String uploadImage(String path, MultipartFile file) {
-        //Get the file name of current / original file
-        String originalFileName = file.getName();
-        //Generate a unique file name
-        String randomId = UUID.randomUUID().toString();
-        String fileName = randomId.concat(originalFileName.substring((originalFileName.lastIndexOf("."))));
-        String filePath = path + File.pathSeparator + fileName;
-        //Rename the file
-        //Check if path exist and create
-        //Upload to server
-        //Return
-
-    }
 }
