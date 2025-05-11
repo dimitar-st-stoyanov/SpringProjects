@@ -1,8 +1,10 @@
-package com.ecomm.project.security.jwt;
+package com.ecomm.project.security.response;
 
 import java.util.List;
 
-public class LoginResponse {
+public class UserInfoResponse {
+
+    private Long id;
 
     private String jwtToken;
 
@@ -10,10 +12,19 @@ public class LoginResponse {
 
     private List<String> roles;
 
-    public LoginResponse(String jwtToken, String username, List<String> roles) {
-        this.jwtToken = jwtToken;
+    public UserInfoResponse(Long id, String username, String jwtToken, List<String> roles) {
+        this.id = id;
         this.username = username;
+        this.jwtToken = jwtToken;
         this.roles = roles;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getJwtToken() {
