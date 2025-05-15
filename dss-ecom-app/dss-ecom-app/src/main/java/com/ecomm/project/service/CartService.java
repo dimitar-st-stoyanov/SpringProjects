@@ -1,8 +1,10 @@
 package com.ecomm.project.service;
 
+import com.ecomm.project.payload.CartDTO;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CartService {
+public interface CartService {
 
+    public CartDTO addProductToCart(Long productId, Integer quantity);
 }
