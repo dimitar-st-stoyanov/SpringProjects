@@ -4,7 +4,6 @@ import com.ecomm.project.payload.OrderDTO;
 import com.ecomm.project.payload.OrderRequestDTO;
 import com.ecomm.project.service.OrderService;
 import com.ecomm.project.util.AuthUtil;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
