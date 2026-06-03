@@ -5,8 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.List;
+import java.util.Map;
 
 @Entity(name = "warehouse_categories")
 @Data
@@ -26,5 +29,8 @@ public class ItemCategory {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<PurchasedItem> purchasedItems;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> attributes;
 
 }

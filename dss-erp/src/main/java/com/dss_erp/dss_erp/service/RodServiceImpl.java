@@ -2,12 +2,22 @@ package com.dss_erp.dss_erp.service;
 
 import com.dss_erp.dss_erp.models.Rod;
 import com.dss_erp.dss_erp.models.RodPiece;
+import com.dss_erp.dss_erp.models.RodUsage;
+import com.dss_erp.dss_erp.models.Sheet;
+import com.dss_erp.dss_erp.payload.BaseMaterialResponse;
 import com.dss_erp.dss_erp.payload.RodDTO;
 import com.dss_erp.dss_erp.payload.RodPieceDTO;
+import com.dss_erp.dss_erp.payload.SheetDTO;
 import com.dss_erp.dss_erp.repositories.RodPieceRepository;
 import com.dss_erp.dss_erp.repositories.RodRepository;
+import com.dss_erp.dss_erp.repositories.RodUsageRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +31,7 @@ public class RodServiceImpl implements RodService {
 
     private final RodRepository rodRepository;
     private final RodPieceRepository rodPieceRepository;
+    private final RodUsageRepository rodUsageRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -56,11 +67,41 @@ public class RodServiceImpl implements RodService {
     }
 
     @Override
-    public List<RodDTO> getAll() {
-        return rodRepository.findAll().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public BaseMaterialResponse<RodDTO> getAll(int pageNumber, int pageSize, String sortBy, String sortOrder, String keyword) {
+        if (sortBy == null || sortBy.isBlank()) {
+            sortBy = "id";
+        }
+
+        Sort sort = "asc".equalsIgnoreCase(sortOrder)
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Specification<Rod> spec = Specification.where(null);
+
+        if (keyword != null && !keyword.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"));
+        }
+
+        Page<Rod> page = rodRepository.findAll(spec, pageable);
+
+        List<RodDTO> dtoList = page.getContent()
+                .stream()
+                .map(item -> modelMapper.map(item, RodDTO.class))
+                .toList();
+
+        return new BaseMaterialResponse<RodDTO>(
+                dtoList,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isLast()
+        );
     }
+
 
     @Transactional
     @Override
@@ -107,9 +148,12 @@ public class RodServiceImpl implements RodService {
 
     @Transactional
     @Override
-    public RodPiece consumeRodMaterial(Long rodId, double requiredLengthMm) {
+    public RodPiece consumeRodMaterial(Long rodId, double requiredLengthMm, String usedFor) {
         if (requiredLengthMm <= 0)
             throw new IllegalArgumentException("Required length must be > 0");
+
+        if (usedFor == null || usedFor.isBlank())
+            throw new IllegalArgumentException("usedFor must be provided");
 
         Rod rod = rodRepository.findById(rodId)
                 .orElseThrow(() -> new RuntimeException("Rod not found"));
@@ -141,6 +185,14 @@ public class RodServiceImpl implements RodService {
 
         rod.updateQuantityFromPieces();
         rodRepository.save(rod);
+
+        RodUsage usage = new RodUsage();
+        usage.setRodId(rodId);
+        usage.setLengthUsed(requiredLengthMm);
+        usage.setUsedFor(usedFor);
+        rodUsageRepository.save(usage);
+
+
 
         return pieceToCut;
     }

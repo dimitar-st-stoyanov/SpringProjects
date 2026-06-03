@@ -1,13 +1,22 @@
 package com.dss_erp.dss_erp.service;
 
+import com.dss_erp.dss_erp.models.PurchasedItem;
 import com.dss_erp.dss_erp.models.Sheet;
 import com.dss_erp.dss_erp.models.SheetUsage;
+import com.dss_erp.dss_erp.payload.BaseMaterialResponse;
+import com.dss_erp.dss_erp.payload.PurchasedItemDTO;
+import com.dss_erp.dss_erp.payload.PurchasedItemResponse;
 import com.dss_erp.dss_erp.payload.SheetDTO;
 import com.dss_erp.dss_erp.repositories.SheetRepository;
 import com.dss_erp.dss_erp.repositories.SheetUsageRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -90,10 +99,47 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
-    public List<SheetDTO> getAll() {
-        return sheetRepository.findAll()
+    public BaseMaterialResponse<SheetDTO> getAll(int pageNumber, int pageSize, String sortBy, String sortOrder, String keyword) {
+
+        if (sortBy == null || sortBy.isBlank()) {
+            sortBy = "id";
+        }
+
+        Sort sort = "asc".equalsIgnoreCase(sortOrder)
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Specification<Sheet> spec = Specification.where(null);
+
+        if (keyword != null && !keyword.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"));
+        }
+
+        Page<Sheet> page = sheetRepository.findAll(spec, pageable);
+
+        List<SheetDTO> dtoList = page.getContent()
                 .stream()
-                .map(sheet -> modelMapper.map(sheet, SheetDTO.class))
+                .map(item -> modelMapper.map(item, SheetDTO.class))
                 .toList();
+
+        return new BaseMaterialResponse<SheetDTO>(
+                dtoList,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isLast()
+        );
     }
+
+//    @Override
+//    public List<SheetDTO> getAll() {
+//        return sheetRepository.findAll()
+//                .stream()
+//                .map(sheet -> modelMapper.map(sheet, SheetDTO.class))
+//                .toList();
+//    }
 }

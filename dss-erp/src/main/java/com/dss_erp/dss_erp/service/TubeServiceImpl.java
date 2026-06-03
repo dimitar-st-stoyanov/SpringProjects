@@ -3,6 +3,7 @@ package com.dss_erp.dss_erp.service;
 import com.dss_erp.dss_erp.models.Tube;
 import com.dss_erp.dss_erp.models.TubePiece;
 import com.dss_erp.dss_erp.models.TubeUsage;
+import com.dss_erp.dss_erp.payload.BaseMaterialResponse;
 import com.dss_erp.dss_erp.payload.TubeDTO;
 import com.dss_erp.dss_erp.payload.TubePieceDTO;
 import com.dss_erp.dss_erp.repositories.TubePieceRepository;
@@ -10,6 +11,11 @@ import com.dss_erp.dss_erp.repositories.TubeRepository;
 import com.dss_erp.dss_erp.repositories.TubeUsageRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,10 +65,39 @@ public class TubeServiceImpl implements TubeService {
     }
 
     @Override
-    public List<TubeDTO> getAll() {
-        return tubeRepository.findAll().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public BaseMaterialResponse<TubeDTO> getAll(int pageNumber, int pageSize, String sortBy, String sortOrder, String keyword) {
+        if (sortBy == null || sortBy.isBlank()) {
+            sortBy = "id";
+        }
+
+        Sort sort = "asc".equalsIgnoreCase(sortOrder)
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Specification<Tube> spec = Specification.where(null);
+
+        if (keyword != null && !keyword.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"));
+        }
+
+        Page<Tube> page = tubeRepository.findAll(spec, pageable);
+
+        List<TubeDTO> dtoList = page.getContent()
+                .stream()
+                .map(item -> modelMapper.map(item, TubeDTO.class))
+                .toList();
+
+        return new BaseMaterialResponse<TubeDTO>(
+                dtoList,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isLast()
+        );
     }
 
     @Transactional

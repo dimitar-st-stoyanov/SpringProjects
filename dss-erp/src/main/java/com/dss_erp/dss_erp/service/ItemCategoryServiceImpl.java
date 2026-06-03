@@ -60,13 +60,25 @@ public class ItemCategoryServiceImpl implements ItemCategoryService {
 
     @Override
     public ItemCategoryDTO createCategory(ItemCategoryDTO categoryDTO) {
+        // Check for duplicate category name first
+        ItemCategory categoryFromDb = categoryRepository.findByCategoryName(categoryDTO.getCategoryName());
+        if (categoryFromDb != null) {
+            throw new APIException("Category with the name " + categoryDTO.getCategoryName() + " already exists!");
+        }
+
+        // Map DTO to entity
         ItemCategory category = modelMapper.map(categoryDTO, ItemCategory.class);
         category.setItemCategoryId(null);
-        ItemCategory categoryFromDb = categoryRepository.findByCategoryName(category.getCategoryName());
-        if(categoryFromDb !=null){
-            throw new APIException("Category with the name " + category.getCategoryName() + " already exist!" );
+
+        // Set attributes if any
+        if (categoryDTO.getAttributes() != null) {
+            category.setAttributes(categoryDTO.getAttributes());
         }
+
+        // Save entity
         ItemCategory savedCategory = categoryRepository.save(category);
+
+        // Map back to DTO and return
         return modelMapper.map(savedCategory, ItemCategoryDTO.class);
     }
 

@@ -15,7 +15,7 @@ public interface RodService extends BaseMaterialService<RodDTO> {
     RodDTO updateQuantity(Long id, Double totalLengthMm);
 
     @Transactional
-    RodPiece consumeRodMaterial(Long rodId, double requiredLengthMm);
+    RodPiece consumeRodMaterial(Long rodId, double requiredLengthMm, String usedFor);
 
     List<RodPiece> getPieces(Long rodId);
 }

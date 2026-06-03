@@ -23,37 +23,42 @@ public class Bar extends RawMaterial {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "bar_seq")
     private Long id;
 
-    private Double width;           // mm
-    private Double height;          // mm
-    private Double standardLength;  // mm per new bar (e.g. 6000)
-    private Integer quantity;       // number of full-length bars received
+    private Double width;          // mm
+    private Double height;         // mm
+    private Double standardLength; // mm
 
-    /** Linked physical pieces of this bar type */
+    /** Total available length (mm) of all BarPiece items */
+    private Double quantity = 0.0;
+
     @OneToMany(mappedBy = "bar", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BarPiece> pieces = new ArrayList<>();
 
-    /**
-     * Calculate total theoretical length (based on quantity × standard length)
-     */
-    public double getTotalLength() {
-        return (standardLength != null && quantity != null)
-                ? standardLength * quantity
-                : 0.0;
+    // ------------------------
+    // Domain logic (mirrors RectTube)
+    // ------------------------
+
+    public void setPieces(List<BarPiece> pieces) {
+        this.pieces = (pieces == null ? new ArrayList<>() : pieces);
     }
 
-    /**
-     * Calculate actual remaining stock length (sum of all pieces).
-     */
-    public double getAvailableLength() {
+    /** Sum of all pieces: length * quantity */
+    public double computeTotalLengthFromPieces() {
         if (pieces == null) return 0.0;
         return pieces.stream()
-                .mapToDouble(p -> p.getRemainingLength() != null ? p.getRemainingLength() : 0.0)
+                .mapToDouble(p -> {
+                    double len = p.getLength() != null ? p.getLength() : 0.0;
+                    double qty = p.getQuantity() != null ? p.getQuantity() : 1.0;
+                    return len * qty;
+                })
                 .sum();
     }
 
-    /**
-     * Returns total number of usable pieces (not marked as scrap).
-     */
+    /** Updates the Bar.quantity to match pieces */
+    public void updateQuantityFromPieces() {
+        this.quantity = computeTotalLengthFromPieces();
+    }
+
+    /** Number of non-scrap pieces */
     public long getAvailablePieces() {
         if (pieces == null) return 0;
         return pieces.stream()
@@ -61,51 +66,26 @@ public class Bar extends RawMaterial {
                 .count();
     }
 
+    // ------------------------
+    // Name + Weight
+    // ------------------------
 
-    /**
-     * Cut a piece and update its remaining length.
-     */
-    public void cutPiece(Long pieceId, double cutLengthMm) {
-        BarPiece piece = pieces.stream()
-                .filter(p -> p.getId().equals(pieceId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Piece not found"));
-
-        if (cutLengthMm > piece.getRemainingLength()) {
-            throw new IllegalArgumentException("Not enough length in this piece");
-        }
-
-        double remaining = piece.getRemainingLength() - cutLengthMm;
-        piece.setRemainingLength(remaining);
-        if (remaining < 100.0) { // threshold for scrap
-            piece.setIsScrap(true);
-        }
-    }
-
-    /**
-     * Weight calculation for solid rectangular bar.
-     */
-    public void calculateWeight() {
-        double safeWidth = (width != null) ? width : 0.0;
-        double safeHeight = (height != null) ? height : 0.0;
-        double safeLength = (standardLength != null) ? standardLength : 0.0;
-        int safeQuantity = (quantity != null) ? quantity : 0;
-        double safeDensity = (getDensity() != null) ? getDensity() : 0.0;
-
-        // Convert mm to meters
-        double w = safeWidth / 1000.0;
-        double h = safeHeight / 1000.0;
-        double l = safeLength / 1000.0;
-
-        double volume = w * h * l * safeQuantity;
-
-        setWeight(volume * safeDensity);
-    }
-
-    /**
-     * Generate display name for the bar.
-     */
     public void generateName() {
         setName("Rect Bar " + getGrade() + " " + width + "x" + height + "mm");
+    }
+
+    /** Weight calculation for solid rectangular bar */
+    public void calculateWeight() {
+        double W = width != null ? width : 0.0;
+        double H = height != null ? height : 0.0;
+        double L = standardLength != null ? standardLength : 0.0;
+        double density = getDensity() != null ? getDensity() : 0.0;
+
+        double w = W / 1000.0;        // m
+        double h = H / 1000.0;        // m
+        double lengthMeters = L / 1000.0;
+
+        double volume = w * h * lengthMeters; // solid bar
+        setWeight(volume * density);
     }
 }

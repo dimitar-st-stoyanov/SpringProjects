@@ -2,19 +2,27 @@ package com.dss_erp.dss_erp.service;
 
 import com.dss_erp.dss_erp.models.Bar;
 import com.dss_erp.dss_erp.models.BarPiece;
-import com.dss_erp.dss_erp.models.RectTube;
-import com.dss_erp.dss_erp.models.RectTubePiece;
+import com.dss_erp.dss_erp.models.BarUsage;
+import com.dss_erp.dss_erp.models.Sheet;
 import com.dss_erp.dss_erp.payload.BarDTO;
 import com.dss_erp.dss_erp.payload.BarPieceDTO;
-import com.dss_erp.dss_erp.payload.RectTubeDTO;
+import com.dss_erp.dss_erp.payload.BaseMaterialResponse;
+import com.dss_erp.dss_erp.payload.SheetDTO;
 import com.dss_erp.dss_erp.repositories.BarRepository;
 import com.dss_erp.dss_erp.repositories.BarPieceRepository;
+import com.dss_erp.dss_erp.repositories.BarUsageRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,38 +32,46 @@ public class BarServiceImpl implements BarService {
     private final BarRepository barRepository;
     private final BarPieceRepository barPieceRepository;
     private final ModelMapper modelMapper;
+    private final BarUsageRepository barUsageRepository;
 
-    /** Create a new Bar with pieces */
+    // -------------------------------------------------------------------------
+    // CREATE BAR
+    // -------------------------------------------------------------------------
     @Override
     @Transactional
     public BarDTO create(BarDTO dto) {
+
         Bar bar = modelMapper.map(dto, Bar.class);
         bar.calculateWeight();
         bar.generateName();
 
-        // create BarPieces for initial quantity
+        // Create initial piece if quantity & standard length exist
         if (bar.getQuantity() != null && bar.getStandardLength() != null) {
-            for (int i = 0; i < bar.getQuantity(); i++) {
-                BarPiece piece = new BarPiece();
-                piece.setOriginalLength(bar.getStandardLength());
-                piece.setRemainingLength(bar.getStandardLength());
-                piece.setBar(bar);
-                bar.getPieces().add(piece);
-            }
+
+            BarPiece piece = new BarPiece();
+            piece.setLength(bar.getStandardLength());
+            piece.setQuantity(1);
+            piece.setBar(bar);
+
+            bar.getPieces().add(piece);
+            bar.updateQuantityFromPieces();
         }
 
         Bar saved = barRepository.save(bar);
         return mapToDTO(saved);
     }
 
-
-    /** Delete Bar */
+    // -------------------------------------------------------------------------
+    // DELETE
+    // -------------------------------------------------------------------------
     @Override
     public void delete(Long id) {
         barRepository.deleteById(id);
     }
 
-    /** Get Bar by ID */
+    // -------------------------------------------------------------------------
+    // GET BY ID
+    // -------------------------------------------------------------------------
     @Override
     public BarDTO getById(Long id) {
         Bar bar = barRepository.findById(id)
@@ -63,109 +79,163 @@ public class BarServiceImpl implements BarService {
         return mapToDTO(bar);
     }
 
-    /** Get all Bars */
     @Override
-    public List<BarDTO> getAll() {
-        return barRepository.findAll()
+    public BaseMaterialResponse<BarDTO> getAll(int pageNumber, int pageSize, String sortBy, String sortOrder, String keyword) {
+        if (sortBy == null || sortBy.isBlank()) {
+            sortBy = "id";
+        }
+
+        Sort sort = "asc".equalsIgnoreCase(sortOrder)
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Specification<Bar> spec = Specification.where(null);
+
+        if (keyword != null && !keyword.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"));
+        }
+
+        Page<Bar> page = barRepository.findAll(spec, pageable);
+
+        List<BarDTO> dtoList = page.getContent()
                 .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+                .map(item -> modelMapper.map(item, BarDTO.class))
+                .toList();
+
+        return new BaseMaterialResponse<BarDTO>(
+                dtoList,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isLast()
+        );
     }
 
+    // -------------------------------------------------------------------------
+    // GET ALL
+    // -------------------------------------------------------------------------
+//    @Override
+//    public List<BarDTO> getAll() {
+//        return barRepository.findAll().stream()
+//                .map(this::mapToDTO)
+//                .collect(Collectors.toList());
+//    }
+
+    // -------------------------------------------------------------------------
+    // RECEIVE DELIVERY (same logic as RectTube)
+    // -------------------------------------------------------------------------
     @Transactional
     @Override
     public BarDTO receiveDelivery(Long barId, Integer piecesReceived, Double lengthPerPieceMm) {
+
         Bar bar = barRepository.findById(barId)
-                .orElseThrow(() -> new RuntimeException("Tube not found with id " + barId));
+                .orElseThrow(() -> new RuntimeException("Bar not found with id " + barId));
 
-        if (piecesReceived == null || piecesReceived <= 0) {
-            throw new IllegalArgumentException("piecesReceived must be greater than zero");
-        }
+        if (piecesReceived == null || piecesReceived <= 0)
+            throw new IllegalArgumentException("piecesReceived must be > 0");
 
-        // Default to standard length if not provided
-        if (lengthPerPieceMm == null || lengthPerPieceMm <= 0) {
+        if (lengthPerPieceMm == null || lengthPerPieceMm <= 0)
             lengthPerPieceMm = bar.getStandardLength() != null ? bar.getStandardLength() : 6000.0;
+
+        // Try to merge with existing entry
+        Optional<BarPiece> existingOpt =
+                barPieceRepository.findByBarIdAndLength(barId, lengthPerPieceMm);
+
+        if (existingOpt.isPresent()) {
+            BarPiece existing = existingOpt.get();
+            existing.setQuantity(existing.getQuantity() + piecesReceived);
+            barPieceRepository.save(existing);
+        } else {
+            BarPiece newPiece = new BarPiece();
+            newPiece.setLength(lengthPerPieceMm);
+            newPiece.setQuantity(piecesReceived);
+            newPiece.setBar(bar);
+            bar.getPieces().add(newPiece);
         }
 
-        // Update quantity
-        if (bar.getQuantity() == null) bar.setQuantity(0);
-        bar.setQuantity(bar.getQuantity() + piecesReceived);
+        bar.updateQuantityFromPieces();
+        barRepository.save(bar);
 
-        // Add new TubePieces
-        for (int i = 0; i < piecesReceived; i++) {
-            BarPiece piece = new BarPiece();
-            piece.setOriginalLength(lengthPerPieceMm);
-            piece.setRemainingLength(lengthPerPieceMm);
-            piece.setBar(bar);
-            bar.getPieces().add(piece);
-        }
-
-        bar.calculateWeight();
-        Bar saved = barRepository.save(bar);
-        return mapToDTO(saved);
+        return mapToDTO(bar);
     }
 
-    /** Update quantity and adjust BarPieces */
-    @Override
+    // -------------------------------------------------------------------------
+    // MANUAL UPDATE OF QUANTITY
+    // -------------------------------------------------------------------------
     @Transactional
-    public BarDTO updateQuantity(Long id, Integer quantity) {
+    @Override
+    public BarDTO updateQuantity(Long id, Double totalLengthMm) {
         Bar bar = barRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bar not found with id " + id));
 
-        int oldQuantity = bar.getQuantity() != null ? bar.getQuantity() : 0;
-        bar.setQuantity(quantity);
+        bar.setQuantity(totalLengthMm);
+        barRepository.save(bar);
 
-        int diff = quantity - oldQuantity;
-        if (diff > 0 && bar.getStandardLength() != null) {
-            // add new pieces
-            for (int i = 0; i < diff; i++) {
-                BarPiece piece = new BarPiece();
-                piece.setOriginalLength(bar.getStandardLength());
-                piece.setRemainingLength(bar.getStandardLength());
-                piece.setBar(bar);
-                bar.getPieces().add(piece);
-            }
-        } else if (diff < 0) {
-            // remove newest pieces
-            bar.getPieces().sort((p1, p2) -> p2.getId().compareTo(p1.getId()));
-            for (int i = 0; i < -diff; i++) {
-                BarPiece piece = bar.getPieces().remove(0);
-                if (piece.getId() != null) {
-                    barPieceRepository.delete(piece);
-                }
-            }
-        }
-
-        bar.calculateWeight();
-        Bar saved = barRepository.save(bar);
-        return mapToDTO(saved);
+        return mapToDTO(bar);
     }
 
-    /** Cut a piece of Bar */
-    @Override
+    // -------------------------------------------------------------------------
+    // CUT MATERIAL (same behavior as RectTube)
+    // -------------------------------------------------------------------------
     @Transactional
-    public BarPiece cutPiece(Long barId, Long pieceId, double cutLengthMm) {
+    @Override
+    public BarPiece consumeBarMaterial(Long barId, double requiredLengthMm, String usedFor) {
+
+        if (requiredLengthMm <= 0)
+            throw new IllegalArgumentException("Required length must be > 0");
+
+        if (usedFor == null || usedFor.isBlank())
+            throw new IllegalArgumentException("usedFor must be provided");
+
         Bar bar = barRepository.findById(barId)
                 .orElseThrow(() -> new RuntimeException("Bar not found"));
 
-        BarPiece piece = bar.getPieces().stream()
-                .filter(p -> p.getId().equals(pieceId))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Piece not found"));
+        // sorted by shortest first
+        List<BarPiece> available =
+                barPieceRepository.findByBarIdAndIsScrapFalseOrderByLengthAsc(barId);
 
-        if (cutLengthMm > piece.getRemainingLength()) {
-            throw new IllegalArgumentException("Not enough length in this piece");
+        BarPiece pieceToCut =
+                available.stream()
+                        .filter(p -> p.getLength() >= requiredLengthMm && p.getQuantity() > 0)
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("No piece long enough"));
+
+        // Cut one
+        BarPiece leftover = pieceToCut.cut(requiredLengthMm);
+
+        // Handle leftover
+        if (leftover != null) {
+
+            Optional<BarPiece> existing =
+                    barPieceRepository.findByBarIdAndLength(barId, leftover.getLength());
+
+            if (existing.isPresent()) {
+                existing.get().setQuantity(existing.get().getQuantity() + 1);
+            } else {
+                leftover.setBar(bar);
+                bar.getPieces().add(leftover);
+            }
         }
 
-        piece.setRemainingLength(piece.getRemainingLength() - cutLengthMm);
-        if (piece.getRemainingLength() < 100.0) {
-            piece.setIsScrap(true);
-        }
+        bar.updateQuantityFromPieces();
+        barRepository.save(bar);
 
-        return barPieceRepository.save(piece);
+        BarUsage usage = new BarUsage();
+        usage.setBarId(barId);
+        usage.setLengthUsed(requiredLengthMm);
+        usage.setUsedFor(usedFor);
+        barUsageRepository.save(usage);
+
+        return pieceToCut;
     }
 
-    /** List all pieces of a Bar */
+    // -------------------------------------------------------------------------
+    // GET PIECES
+    // -------------------------------------------------------------------------
     @Override
     public List<BarPiece> getPieces(Long barId) {
         Bar bar = barRepository.findById(barId)
@@ -173,20 +243,19 @@ public class BarServiceImpl implements BarService {
         return bar.getPieces();
     }
 
-    /** Map Bar → BarDTO (null-safe) */
+    // -------------------------------------------------------------------------
+    // DTO MAPPING
+    // -------------------------------------------------------------------------
     private BarDTO mapToDTO(Bar bar) {
+
         BarDTO dto = modelMapper.map(bar, BarDTO.class);
 
-        List<BarPiece> pieces = bar.getPieces() != null
-                ? bar.getPieces()
-                : List.of();
-
-        dto.setTotalLength(bar.getTotalLength());
-        dto.setAvailableLength(bar.getAvailableLength());
+        dto.setTotalLength(bar.computeTotalLengthFromPieces());
+        dto.setAvailableLength(bar.computeTotalLengthFromPieces());
         dto.setAvailablePieces(bar.getAvailablePieces());
 
         dto.setPieces(
-                pieces.stream()
+                bar.getPieces().stream()
                         .map(p -> modelMapper.map(p, BarPieceDTO.class))
                         .collect(Collectors.toList())
         );

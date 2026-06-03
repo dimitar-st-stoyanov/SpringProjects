@@ -1,9 +1,8 @@
 package com.dss_erp.dss_erp.controller;
 
+import com.dss_erp.dss_erp.config.AppConstants;
 import com.dss_erp.dss_erp.models.TubePiece;
-import com.dss_erp.dss_erp.payload.PiecesDeliveryDTO;
-import com.dss_erp.dss_erp.payload.TubeDTO;
-import com.dss_erp.dss_erp.payload.TubePieceDTO;
+import com.dss_erp.dss_erp.payload.*;
 import com.dss_erp.dss_erp.service.TubeService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -29,12 +28,16 @@ public class TubeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TubeDTO>> getAllTubes() {
-        List<TubeDTO> tubes = tubeService.getAll();
-        return ResponseEntity.ok(tubes);
-    }
+    public ResponseEntity<BaseMaterialResponse<TubeDTO>> getAllTubes(@RequestParam(required=false) String keyword,
+                                                                       @RequestParam(defaultValue = AppConstants.PAGE_NUMBER) int pageNumber,
+                                                                       @RequestParam(defaultValue = AppConstants.PAGE_SIZE) int pageSize,
+                                                                       @RequestParam(defaultValue = AppConstants.SORT_ITEMS_BY) String sortBy,
+                                                                       @RequestParam(defaultValue = AppConstants.SORT_DIR) String sortOrder) {
+        BaseMaterialResponse<TubeDTO> response = tubeService.getAll(pageNumber, pageSize, sortBy, sortOrder, keyword);
+        return ResponseEntity.ok(response);
 
-    @GetMapping("/{id}")
+    }
+        @GetMapping("/{id}")
     public ResponseEntity<TubeDTO> getTubeById(@PathVariable Long id) {
         TubeDTO tube = tubeService.getById(id);
         return ResponseEntity.ok(tube);

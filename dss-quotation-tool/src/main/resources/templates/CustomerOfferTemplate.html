@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            color: #333333;
+            padding: 35px;
+            font-size: 13px;
+        }
+
+        .header {
+            width: 100%;
+            margin-bottom: 40px;
+        }
+
+        .company-section {
+            float: left;
+            width: 50%;
+        }
+
+        .offer-section {
+            float: right;
+            width: 40%;
+            text-align: right;
+        }
+
+        .offer-title {
+            font-size: 34px;
+            font-weight: bold;
+            color: #0D4D92;
+            letter-spacing: 2px;
+            line-height: 1.1;
+        }
+
+        .company-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0D4D92;
+            margin-bottom: 10px;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .section {
+            margin-top: 30px;
+        }
+
+        .section-title {
+            color: #0D4D92;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .customer-box {
+            line-height: 1.7;
+        }
+
+        .quote-info {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .quote-info td {
+            padding: 5px 0;
+        }
+
+        .quote-info .label {
+            color: #0D4D92;
+            font-weight: bold;
+            width: 130px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 35px;
+        }
+
+        .items-table th {
+            background-color: #0D4D92;
+            color: #ffffff;
+            padding: 12px;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .items-table tr:nth-child(even) {
+            background-color: #f7f7f7;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .totals {
+            width: 340px;
+            margin-left: auto;
+            margin-top: 30px;
+        }
+
+        .totals table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .totals td {
+            padding: 8px 0;
+        }
+
+        .totals .label {
+            text-align: right;
+            padding-right: 15px;
+        }
+
+        .grand-total {
+            border-top: 2px solid #0D4D92;
+            border-bottom: 2px solid #0D4D92;
+            font-weight: bold;
+            color: #0D4D92;
+            font-size: 16px;
+        }
+
+        .footer {
+            margin-top: 70px;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .terms-title {
+            color: #0D4D92;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .signature {
+            width: 220px;
+            text-align: center;
+            float: right;
+            margin-top: 60px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333333;
+            margin-bottom: 8px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
+
+    <div class="company-section">
+
+        <div class="company-name">
+            Your Company Inc.
+        </div>
+
+        <div>
+            1234 Company Street<br />
+            Company City, Country<br />
+            info@yourcompany.com<br />
+            +359 000 000 000
+        </div>
+
+    </div>
+
+    <div class="offer-section">
+
+        <div class="offer-title">
+            COMMERCIAL<br />
+            OFFER
+        </div>
+
+    </div>
+
+</div>
+
+<div class="clear"></div>
+
+<!-- CUSTOMER + OFFER INFO -->
+
+<div class="section">
+
+    <div style="float:left; width:50%;">
+
+        <div class="section-title">Customer</div>
+
+        <div class="customer-box">
+
+            <strong th:text="${quote.customerName}"></strong><br />
+
+            <span th:text="${quote.customerAddress}"></span><br />
+
+<!--            <span th:text="${quote.customerEmail}"></span>-->
+
+        </div>
+
+    </div>
+
+    <div style="float:right; width:40%;">
+
+        <table class="quote-info">
+
+            <tr>
+                <td class="label">Offer #</td>
+                <td th:text="${quote.quoteNumber}"></td>
+            </tr>
+
+            <tr>
+                <td class="label">Offer Date</td>
+                <td th:text="${quote.quoteDate}"></td>
+            </tr>
+
+            <tr>
+                <td class="label">Valid Until</td>
+                <td th:text="${quote.validUntil}"></td>
+            </tr>
+
+            <tr>
+                <td class="label">Lead Time</td>
+                <td>7-10 Working Days</td>
+            </tr>
+
+            <tr>
+                <td class="label">Currency</td>
+                <td>EUR (&#8364;)</td>
+            </tr>
+
+            <tr>
+                <td class="label">Total Parts</td>
+                <td th:text="${quote.totalQuantity}"></td>
+            </tr>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div class="clear"></div>
+
+<!-- ITEMS TABLE -->
+
+<table class="items-table">
+
+    <thead>
+
+    <tr>
+        <th>Part Name</th>
+        <th>Material</th>
+        <th>Thickness</th>
+        <th>Qty</th>
+        <th class="text-right">Unit Price</th>
+        <th class="text-right">Total</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    <tr th:each="item : ${quote.items}">
+
+        <td th:text="${item.partName}"></td>
+
+        <td th:text="${item.materialName}"></td>
+
+        <td th:text="${item.thickness + ' mm'}"></td>
+
+        <td th:text="${item.quantity}"></td>
+
+        <td class="text-right"
+            th:text="${'&#8364; ' + item.unitPrice}">
+        </td>
+
+        <td class="text-right"
+            th:text="${'&#8364; ' + item.amount}">
+        </td>
+
+    </tr>
+
+    </tbody>
+
+</table>
+
+<!-- TOTALS -->
+
+<div class="totals">
+
+    <table>
+
+        <tr>
+
+            <td class="label">Subtotal</td>
+
+            <td class="text-right"
+                th:text="${'&#8364; ' + quote.subtotal}">
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td class="label">VAT</td>
+
+            <td class="text-right">
+                Excluded
+            </td>
+
+        </tr>
+
+        <tr class="grand-total">
+
+            <td class="label">TOTAL</td>
+
+            <td class="text-right"
+                th:text="${'&#8364; ' + quote.total}">
+            </td>
+
+        </tr>
+
+    </table>
+
+</div>
+
+<div class="clear"></div>
+
+<!-- FOOTER -->
+
+<div class="footer">
+
+    <div class="terms-title">
+        Terms &amp; Conditions
+    </div>
+
+    <div>
+        &#8226; Offer validity: 30 days from issue date.<br />
+        &#8226; Lead time starts after order confirmation.<br />
+        &#8226; Material availability may affect delivery time.<br />
+        &#8226; Prices are in EUR and exclude VAT unless otherwise stated.<br />
+        &#8226; Payment term: 14 days bank transfer.
+    </div>
+
+    <div class="signature">
+
+        <div class="signature-line"></div>
+
+        Customer Approval
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

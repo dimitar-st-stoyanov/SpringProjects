@@ -15,27 +15,17 @@ public class RectTubePiece {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Length of a single piece (mm) */
     private Double length;
+    private String location;
+    private Boolean isScrap = false;
 
-    /** Quantity of identical pieces with this length */
     @Column(nullable = false)
     private Integer quantity = 1;
 
-    /** Location or remarks */
-    private String location;
-
-    /** Mark as scrap (unusable) */
-    private Boolean isScrap = false;
-
-    /** Many pieces belong to a single RectTube */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rect_tube_id", nullable = false)
     private RectTube rectTube;
 
-    /**
-     * Cut one piece from this batch, returning leftover if any.
-     */
     public RectTubePiece cut(double cutLength) {
         if (cutLength <= 0) {
             throw new IllegalArgumentException("Cut length must be > 0");

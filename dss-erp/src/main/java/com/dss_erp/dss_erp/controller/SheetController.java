@@ -2,6 +2,8 @@ package com.dss_erp.dss_erp.controller;
 
 
 
+import com.dss_erp.dss_erp.config.AppConstants;
+import com.dss_erp.dss_erp.payload.BaseMaterialResponse;
 import com.dss_erp.dss_erp.payload.SheetDTO;
 import com.dss_erp.dss_erp.service.SheetService;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +29,13 @@ public class SheetController {
 
     // ✅ GET all sheets
     @GetMapping
-    public ResponseEntity<List<SheetDTO>> getAllSheets() {
-        List<SheetDTO> sheets = sheetService.getAll();
-        return ResponseEntity.ok(sheets);
+    public ResponseEntity<BaseMaterialResponse<SheetDTO>> getAllSheets(@RequestParam(required=false) String keyword,
+                                                                        @RequestParam(defaultValue = AppConstants.PAGE_NUMBER) int pageNumber,
+                                                                        @RequestParam(defaultValue = AppConstants.PAGE_SIZE) int pageSize,
+                                                                        @RequestParam(defaultValue = AppConstants.SORT_ITEMS_BY) String sortBy,
+                                                                        @RequestParam(defaultValue = AppConstants.SORT_DIR) String sortOrder) {
+        BaseMaterialResponse<SheetDTO> response = sheetService.getAll(pageNumber, pageSize, sortBy, sortOrder, keyword);
+        return ResponseEntity.ok(response);
     }
 
     // ✅ GET sheet by ID

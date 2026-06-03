@@ -1,9 +1,9 @@
 package com.dss_erp.dss_erp.controller;
 
+import com.dss_erp.dss_erp.config.AppConstants;
+import com.dss_erp.dss_erp.models.Rod;
 import com.dss_erp.dss_erp.models.RodPiece;
-import com.dss_erp.dss_erp.payload.PiecesDeliveryDTO;
-import com.dss_erp.dss_erp.payload.RodDTO;
-import com.dss_erp.dss_erp.payload.RodPieceDTO;
+import com.dss_erp.dss_erp.payload.*;
 import com.dss_erp.dss_erp.service.RodService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -29,9 +29,13 @@ public class RodController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RodDTO>> getAllRods() {
-        List<RodDTO> rods = rodService.getAll();
-        return ResponseEntity.ok(rods);
+    public ResponseEntity<BaseMaterialResponse<RodDTO>> getAllRods(@RequestParam(required=false) String keyword,
+                                                                       @RequestParam(defaultValue = AppConstants.PAGE_NUMBER) int pageNumber,
+                                                                       @RequestParam(defaultValue = AppConstants.PAGE_SIZE) int pageSize,
+                                                                       @RequestParam(defaultValue = AppConstants.SORT_ITEMS_BY) String sortBy,
+                                                                       @RequestParam(defaultValue = AppConstants.SORT_DIR) String sortOrder) {
+        BaseMaterialResponse<RodDTO> response = rodService.getAll(pageNumber, pageSize, sortBy, sortOrder, keyword);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
@@ -72,9 +76,10 @@ public class RodController {
     @PutMapping("/{id}/consume")
     public ResponseEntity<RodPieceDTO> consumeRod(
             @PathVariable Long id,
-            @RequestParam double length) {
+            @RequestParam double length,
+            @RequestParam String usedFor) {
 
-        RodPiece piece = rodService.consumeRodMaterial(id, length);
+        RodPiece piece = rodService.consumeRodMaterial(id, length, usedFor);
         RodPieceDTO dto = modelMapper.map(piece, RodPieceDTO.class);
         return ResponseEntity.ok(dto);
     }

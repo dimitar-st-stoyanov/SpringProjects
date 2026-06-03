@@ -1,13 +1,20 @@
 package com.dss_erp.dss_erp.service;
 
-import com.dss_erp.dss_erp.models.RectTube;
-import com.dss_erp.dss_erp.models.RectTubePiece;
+import com.dss_erp.dss_erp.models.*;
+import com.dss_erp.dss_erp.payload.BaseMaterialResponse;
 import com.dss_erp.dss_erp.payload.RectTubeDTO;
 import com.dss_erp.dss_erp.payload.RectTubePieceDTO;
+import com.dss_erp.dss_erp.payload.SheetDTO;
 import com.dss_erp.dss_erp.repositories.RectTubeRepository;
 import com.dss_erp.dss_erp.repositories.RectTubePieceRepository;
+import com.dss_erp.dss_erp.repositories.RectTubeUsageRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +29,7 @@ public class RectTubeServiceImpl implements RectTubeService {
     private final RectTubeRepository rectTubeRepository;
     private final RectTubePieceRepository rectTubePieceRepository;
     private final ModelMapper modelMapper;
+    private final RectTubeUsageRepository rectTubeUsageRepository;
 
     // -------------------------------------------------------------------------
     // CREATE RECT TUBE
@@ -68,15 +76,51 @@ public class RectTubeServiceImpl implements RectTubeService {
         return mapToDTO(tube);
     }
 
+    @Override
+    public BaseMaterialResponse<RectTubeDTO> getAll(int pageNumber, int pageSize, String sortBy, String sortOrder, String keyword) {
+        if (sortBy == null || sortBy.isBlank()) {
+            sortBy = "id";
+        }
+
+        Sort sort = "asc".equalsIgnoreCase(sortOrder)
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Specification<RectTube> spec = Specification.where(null);
+
+        if (keyword != null && !keyword.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"));
+        }
+
+        Page<RectTube> page = rectTubeRepository.findAll(spec, pageable);
+
+        List<RectTubeDTO> dtoList = page.getContent()
+                .stream()
+                .map(item -> modelMapper.map(item, RectTubeDTO.class))
+                .toList();
+
+        return new BaseMaterialResponse<RectTubeDTO>(
+                dtoList,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isLast()
+        );
+    }
+
     // -------------------------------------------------------------------------
     // GET ALL
     // -------------------------------------------------------------------------
-    @Override
-    public List<RectTubeDTO> getAll() {
-        return rectTubeRepository.findAll().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-    }
+//    @Override
+//    public List<RectTubeDTO> getAll() {
+//        return rectTubeRepository.findAll().stream()
+//                .map(this::mapToDTO)
+//                .collect(Collectors.toList());
+//    }
 
     // -------------------------------------------------------------------------
     // RECEIVE DELIVERY (matching Tube)
@@ -177,6 +221,12 @@ public class RectTubeServiceImpl implements RectTubeService {
 
         tube.updateQuantityFromPieces();
         rectTubeRepository.save(tube);
+
+        RectTubeUsage usage = new RectTubeUsage();
+        usage.setRectTubeId(tubeId);
+        usage.setLengthUsed(requiredLengthMm);
+        usage.setUsedFor(usedFor);
+        rectTubeUsageRepository.save(usage);
 
         return pieceToCut;
     }

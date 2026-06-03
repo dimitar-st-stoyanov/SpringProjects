@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8"/>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            color: #333333;
+            padding: 28px;
+            font-size: 11px;
+        }
+
+        .header {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .company-section {
+            float: left;
+            width: 50%;
+        }
+
+        .quote-section {
+            float: right;
+            width: 45%;
+            text-align: right;
+        }
+
+        .title {
+            font-size: 30px;
+            font-weight: bold;
+            color: #0D4D92;
+            letter-spacing: 2px;
+            line-height: 1.1;
+        }
+
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0D4D92;
+            margin-bottom: 8px;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .section {
+            margin-top: 24px;
+        }
+
+        .section-title {
+            color: #0D4D92;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border-bottom: 2px solid #0D4D92;
+            padding-bottom: 4px;
+        }
+
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .meta-table td {
+            padding: 5px 0;
+        }
+
+        .meta-table .label {
+            color: #0D4D92;
+            font-weight: bold;
+            width: 140px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .items-table th {
+            background-color: #0D4D92;
+            color: #ffffff;
+            padding: 9px;
+            font-size: 10px;
+            text-align: left;
+        }
+
+        .items-table td {
+            padding: 8px;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .items-table tr:nth-child(even) {
+            background-color: #f7f7f7;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .totals {
+            width: 430px;
+            margin-left: auto;
+            margin-top: 28px;
+        }
+
+        .totals table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .totals td {
+            padding: 6px 0;
+        }
+
+        .totals .label {
+            text-align: right;
+            padding-right: 15px;
+            color: #0D4D92;
+            font-weight: bold;
+        }
+
+        .grand-total {
+            border-top: 2px solid #0D4D92;
+            border-bottom: 2px solid #0D4D92;
+            font-weight: bold;
+            color: #0D4D92;
+            font-size: 14px;
+        }
+
+        .calc-box {
+            border: 1px solid #dddddd;
+            padding: 14px;
+            margin-bottom: 18px;
+            background-color: #fafafa;
+        }
+
+        .calc-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #0D4D92;
+            margin-bottom: 12px;
+        }
+
+        .price-highlight {
+            background: #eef5fc;
+            border-top: 2px solid #0D4D92;
+            border-bottom: 2px solid #0D4D92;
+            font-weight: bold;
+        }
+
+        .note {
+            margin-top: 28px;
+            font-size: 10px;
+            color: #666666;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
+
+    <div class="company-section">
+        <div class="company-name">
+            Your Company Inc.
+        </div>
+
+        <div>
+            Internal quotation details<br/>
+            Generated for review and recalculation
+        </div>
+    </div>
+
+    <div class="quote-section">
+        <div class="title">
+            QUOTE<br/>
+            DETAILS
+        </div>
+    </div>
+
+</div>
+
+<div class="clear"></div>
+
+<!-- CUSTOMER + QUOTE INFO -->
+
+<div class="section">
+
+    <div style="float:left; width:50%;">
+
+        <div class="section-title">
+            Customer
+        </div>
+
+        <table class="meta-table">
+
+            <tr>
+                <td class="label">Customer</td>
+                <td th:text="${quote.customerName}"></td>
+            </tr>
+
+            <tr>
+                <td class="label">Quote Name</td>
+                <td th:text="${quote.quoteName}"></td>
+            </tr>
+
+            <tr>
+                <td class="label">Status</td>
+                <td th:text="${quote.status}"></td>
+            </tr>
+
+        </table>
+
+    </div>
+
+    <div style="float:right; width:45%;">
+
+        <div class="section-title">
+            Quote
+        </div>
+
+        <table class="meta-table">
+
+            <tr>
+                <td class="label">Quote #</td>
+                <td th:text="${quote.quoteNumber}"></td>
+            </tr>
+
+            <tr>
+                <td class="label">Date</td>
+                <td th:text="${quote.quoteDate}"></td>
+            </tr>
+
+            <tr>
+                <td class="label">Machine</td>
+                <td th:text="${quote.machineName}"></td>
+            </tr>
+
+            <tr>
+                <td class="label">Total Parts</td>
+                <td th:text="${quote.totalQuantity}"></td>
+            </tr>
+
+            <tr>
+                <td class="label">Margin</td>
+                <td th:text="${quote.margin + '%'}"></td>
+            </tr>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div class="clear"></div>
+
+<!-- PART SUMMARY -->
+
+<div class="section">
+
+    <div class="section-title">
+        Parts Overview
+    </div>
+
+    <table class="items-table">
+
+        <thead>
+        <tr>
+            <th>Part</th>
+            <th>Material</th>
+            <th>Thickness</th>
+            <th>Qty</th>
+            <th class="text-right">Price / Piece</th>
+            <th class="text-right">Total Price</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <tr th:each="item : ${quote.items}"
+            th:with="
+                totalPrice=${T(java.lang.Double).parseDouble(item.calculatedAmount)},
+                unitPrice=${totalPrice / item.quantity}
+            ">
+
+            <td th:text="${item.partName}"></td>
+
+            <td th:text="${item.materialName}"></td>
+
+            <td th:text="${item.thickness + ' mm'}"></td>
+
+            <td th:text="${item.quantity}"></td>
+
+            <td class="text-right"
+                th:text="${'€ ' + #numbers.formatDecimal(unitPrice, 1, 2)}">
+            </td>
+
+            <td class="text-right"
+                th:text="${'€ ' + #numbers.formatDecimal(totalPrice, 1, 2)}">
+            </td>
+
+        </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<!-- PART CALCULATIONS -->
+
+<div class="section">
+
+    <div class="section-title">
+        Part Calculations
+    </div>
+
+    <div th:each="item : ${quote.items}"
+         th:with="
+            totalPrice=${T(java.lang.Double).parseDouble(item.calculatedAmount)},
+            unitPrice=${totalPrice / item.quantity}
+         "
+         class="calc-box">
+
+        <div class="calc-title">
+
+            <span th:text="${item.partName}"></span>
+            -
+            <span th:text="${item.materialName}"></span>
+
+        </div>
+
+        <table class="meta-table">
+
+            <tr>
+
+                <td class="label">Quantity</td>
+                <td th:text="${item.quantity}"></td>
+
+                <td class="label">Weight</td>
+                <td th:text="${item.weight + ' kg'}"></td>
+
+            </tr>
+
+            <tr>
+
+                <td class="label">Thickness</td>
+                <td th:text="${item.thickness + ' mm'}"></td>
+
+                <td class="label">Bends</td>
+                <td th:text="${item.bends}"></td>
+
+            </tr>
+
+            <tr>
+
+                <td class="label">Cut Time</td>
+                <td th:text="${item.cutTime + ' min'}"></td>
+
+                <td class="label">Pierce Time</td>
+                <td th:text="${item.pierceTime + ' min'}"></td>
+
+            </tr>
+
+            <tr>
+
+                <td class="label">Bend Time</td>
+                <td th:text="${item.bendTime + ' min'}"></td>
+
+                <td class="label">Material Cost</td>
+                <td th:text="${'€ ' + item.materialCost}"></td>
+
+            </tr>
+
+            <tr>
+
+                <td class="label">Cutting Cost</td>
+                <td th:text="${'€ ' + item.cuttingCost}"></td>
+
+                <td class="label">Bending Cost</td>
+                <td th:text="${'€ ' + item.bendingCost}"></td>
+
+            </tr>
+
+            <tr>
+
+                <td class="label">Operations</td>
+                <td th:text="${item.operations}"></td>
+
+                <td class="label">Operation Cost</td>
+                <td th:text="${'€ ' + item.operationCost}"></td>
+
+            </tr>
+
+            <!-- PRICE SUMMARY -->
+
+            <tr class="price-highlight">
+
+                <td class="label">
+                    Price Per Piece
+                </td>
+
+                <td th:text="${'€ ' + #numbers.formatDecimal(unitPrice, 1, 2)}">
+                </td>
+
+                <td class="label"
+                    th:text="${'Price For ' + item.quantity + ' pcs'}">
+                </td>
+
+                <td th:text="${'€ ' + #numbers.formatDecimal(totalPrice, 1, 2)}">
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+</div>
+
+<!-- QUOTE TOTALS -->
+
+<div class="totals">
+
+    <table>
+
+        <tr>
+            <td class="label">Total Weight</td>
+            <td class="text-right"
+                th:text="${quote.totalWeight + ' kg'}">
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Total Time</td>
+            <td class="text-right"
+                th:text="${quote.totalTime + ' min'}">
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Material Cost</td>
+            <td class="text-right"
+                th:text="${'€ ' + quote.materialCost}">
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Cutting Cost</td>
+            <td class="text-right"
+                th:text="${'€ ' + quote.cuttingCost}">
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Bending Cost</td>
+            <td class="text-right"
+                th:text="${'€ ' + quote.bendingCost}">
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Operation Cost</td>
+            <td class="text-right"
+                th:text="${'€ ' + quote.operationCost}">
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Total Cost</td>
+            <td class="text-right"
+                th:text="${'€ ' + quote.totalCost}">
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Calculated Price</td>
+            <td class="text-right"
+                th:text="${'€ ' + quote.calculatedPrice}">
+            </td>
+        </tr>
+
+        <tr th:if="${quote.minCharged}">
+            <td class="label">Minimum Charge</td>
+            <td class="text-right"
+                th:text="${'€ ' + quote.minimumCharge}">
+            </td>
+        </tr>
+
+        <tr th:if="${quote.finalPriceOverridden}">
+            <td class="label">Final Price Override</td>
+            <td class="text-right">Yes</td>
+        </tr>
+
+        <tr class="grand-total">
+            <td class="label">Final Price</td>
+            <td class="text-right"
+                th:text="${'€ ' + quote.total}">
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Profit</td>
+            <td class="text-right"
+                th:text="${'€ ' + quote.profit}">
+            </td>
+        </tr>
+
+    </table>
+
+</div>
+
+<div class="clear"></div>
+
+<!-- FOOTER NOTE -->
+
+<div class="note">
+    Internal document. This PDF includes calculated prices,
+    costs, machine time, and profit.
+    Use customer offer PDF for external communication.
+</div>
+
+</body>
+</html>

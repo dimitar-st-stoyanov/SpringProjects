@@ -8,9 +8,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BarPieceDTO {
+
     private Long id;
-    private Double originalLength;
-    private Double remainingLength;
+    private Double length;
+    private String location;
     private Boolean isScrap;
-    private String remark;
+    private Integer quantity;
+
 }
+

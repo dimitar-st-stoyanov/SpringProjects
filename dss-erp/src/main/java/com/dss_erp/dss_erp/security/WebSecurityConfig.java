@@ -120,7 +120,7 @@ public class WebSecurityConfig {
                                       UserRepository userRepository,
                                       PasswordEncoder passwordEncoder){
         return args -> {
-            //Retrieve or create roles
+            //Retrieve or createRouting roles
             Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                     .orElseGet(() -> {
                         Role newUserRole = new Role(AppRole.ROLE_USER);
