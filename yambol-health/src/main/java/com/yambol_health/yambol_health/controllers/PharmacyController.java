@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/pharmacies")
-public class PhramacyController {
+public class PharmacyController {
 
     private final PharmacyService pharmacyService;
 
-    public PhramacyController(PharmacyService pharmacyService) {
+    public PharmacyController(PharmacyService pharmacyService) {
         this.pharmacyService = pharmacyService;
     }
 
