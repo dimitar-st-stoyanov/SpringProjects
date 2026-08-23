@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum OperationPricingMode {
     FIXED,
-    PER_ITEM,
-    PER_PART,
     PER_QUANTITY,
-    PER_MINUTE,
     PER_HOUR,
     PER_BEND;
 
@@ -26,6 +23,6 @@ public enum OperationPricingMode {
     }
 
     public boolean requiresTime() {
-        return this == PER_MINUTE || this == PER_HOUR;
+        return this == PER_HOUR;
     }
 }

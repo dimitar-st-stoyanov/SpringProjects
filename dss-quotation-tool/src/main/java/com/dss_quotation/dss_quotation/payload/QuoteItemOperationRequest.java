@@ -13,4 +13,6 @@ public class QuoteItemOperationRequest {
 
     private Long operationId;
     private Double timeMinutes;
+    private Double overrideCost;
+    private boolean isOverriden;
 }

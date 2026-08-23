@@ -53,8 +53,11 @@ public class QuoteServiceImpl implements QuoteService {
     @Override
     @Transactional
     public QuoteDetailsResponse generateQuote(CreateQuoteRequest request) {
+        System.out.println(request.getOperations());
 
         validateCreateQuoteRequest(request);
+
+        System.out.println(request.getOperations());
 
         Machine machine = machineService.getById(request.getMachineId());
 
@@ -745,26 +748,37 @@ public class QuoteServiceImpl implements QuoteService {
     }
 
     private List<QuoteItemOperationRequest> resolveOperationRequests(CreateQuoteRequest request, int index) {
-        if (request.getOperations() != null) {
-            return parseOperationRequests(request.getOperations().get(index));
+
+        System.out.println(request.getOperations());
+        List<String> operations = request.getOperations();
+        System.out.println("OPERATIONS LIST SIZE = " + operations.size());
+        for (int i = 0; i < operations.size(); i++) {
+            System.out.println("operations[" + i + "] = " + operations.get(i));
+        }
+        if (operations != null && index < operations.size()) {
+            return parseOperationRequests(operations.get(index));
         }
 
-        if (request.getOperationIds() == null) {
-            return new ArrayList<>();
+        List<String> operationIds = request.getOperationIds();
+        if (operationIds != null && index < operationIds.size()) {
+
+            String value = operationIds.get(index);
+
+            if (value != null && !value.isBlank()) {
+                return parseLegacyOperationIds(value);
+            }
         }
 
-        String operationIds = request.getOperationIds().get(index);
-        if (operationIds == null || operationIds.isBlank()) {
-            return new ArrayList<>();
-        }
-
-        return parseLegacyOperationIds(operationIds);
+        return new ArrayList<>();
     }
 
     private List<QuoteItemOperationRequest> parseOperationRequests(String rawOperations) {
+        System.out.println("RAW OPERATIONS = " + rawOperations);
+        System.out.println("LENGTH = " + rawOperations.length());
         if (rawOperations == null || rawOperations.isBlank()) {
             return new ArrayList<>();
         }
+
 
         String trimmed = rawOperations.trim();
         if (trimmed.startsWith("[")) {
@@ -772,6 +786,7 @@ public class QuoteServiceImpl implements QuoteService {
                 return objectMapper.readValue(trimmed, new TypeReference<List<QuoteItemOperationRequest>>() {
                 });
             } catch (Exception ex) {
+                System.out.println("RAW OPERATIONS = " + rawOperations);
                 throw new APIException("Operations must be valid JSON");
             }
         }
@@ -848,8 +863,16 @@ public class QuoteServiceImpl implements QuoteService {
         Operation operation = operationService.getById(request.getOperationId());
         validateOperationIsActive(operation);
 
-        double timeMinutes = resolveOperationTime(operation, request.getTimeMinutes());
-        double cost = calculateOperationCost(operation, quantity, bends, timeMinutes);
+
+        double timeMinutes = 0.0;
+        double cost = 0.0;
+
+        if (request.getOverrideCost() != null) {
+            cost=request.getOverrideCost();
+
+        } else {timeMinutes = resolveOperationTime(operation, request.getTimeMinutes());
+            cost = calculateOperationCost(operation, quantity, bends, timeMinutes);}
+
 
         return QuoteDxfItemOperation.builder()
                 .quoteDxfItem(item)
@@ -909,15 +932,18 @@ public class QuoteServiceImpl implements QuoteService {
         return requestedTimeMinutes != null ? requestedTimeMinutes : 0;
     }
 
+    private static final double BENDS_PER_HOUR = 120.0;
+    private static final double BEND_SETUP_TIME = 5.0;
+
     private double calculateOperationCost(Operation operation, int quantity, int bends, double timeMinutes) {
         if (operation.getPricingMode() == null) {
             throw new APIException("Pricing mode is required for operation: " + operation.getName());
         }
 
+
         return switch (operation.getPricingMode()) {
-            case FIXED, PER_ITEM -> operation.getRate();
-            case PER_PART, PER_QUANTITY -> operation.getRate() * quantity;
-            case PER_MINUTE -> operation.getRate() * timeMinutes;
+            case FIXED-> operation.getRate();
+            case PER_QUANTITY -> operation.getRate() * quantity;
             case PER_HOUR -> operation.getRate() * (timeMinutes / 60.0);
             case PER_BEND -> operation.getRate() * bends * quantity;
         };

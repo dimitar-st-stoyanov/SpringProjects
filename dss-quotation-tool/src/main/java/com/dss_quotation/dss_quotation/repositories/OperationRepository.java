@@ -21,4 +21,7 @@ public interface OperationRepository extends JpaRepository<Operation, Long> {
     boolean existsByNameIgnoreCase(String name);
 
     boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
+
+    Optional<Operation> findByNameIgnoreCase(String name);
+
 }

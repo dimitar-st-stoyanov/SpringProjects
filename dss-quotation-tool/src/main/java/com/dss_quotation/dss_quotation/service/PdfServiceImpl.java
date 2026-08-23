@@ -203,8 +203,8 @@ public class PdfServiceImpl implements PdfService {
 
         return operations.stream()
                 .map(itemOperation -> itemOperation.getOperation().getName()
-                        + " (" + itemOperation.getOperation().getPricingMode()
-                        + ", " + formatNumber(itemOperation.getTimeMinutes()) + " min)")
+                        + " (" + formatNumber(itemOperation.getTimeMinutes()) + " min)" + " - €" + String.format("%.2f", itemOperation.getCost())
+                        )
                 .reduce((first, second) -> first + ", " + second)
                 .orElse("-");
     }

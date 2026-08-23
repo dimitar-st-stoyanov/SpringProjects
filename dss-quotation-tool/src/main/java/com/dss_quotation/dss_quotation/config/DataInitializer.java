@@ -1,12 +1,10 @@
 package com.dss_quotation.dss_quotation.config;
 
-import com.dss_quotation.dss_quotation.models.GasType;
-import com.dss_quotation.dss_quotation.models.Machine;
-import com.dss_quotation.dss_quotation.models.MachineCutParameters;
-import com.dss_quotation.dss_quotation.models.Material;
+import com.dss_quotation.dss_quotation.models.*;
 import com.dss_quotation.dss_quotation.repositories.MachineRepository;
 import com.dss_quotation.dss_quotation.repositories.MachineCutParametersRepository;
 import com.dss_quotation.dss_quotation.repositories.MaterialRepository;
+import com.dss_quotation.dss_quotation.repositories.OperationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +19,19 @@ public class DataInitializer implements CommandLineRunner {
     private final MachineRepository machineRepository;
     private final MachineCutParametersRepository machineCutParametersRepository;
     private final MaterialRepository materialRepository;
+    private final OperationRepository operationRepository;
 
     @Override
     public void run(String... args) {
+
+        /* ===============================
+                       OPERATIONS
+         =============================== */
+        getOrCreateOperation("Welding", OperationPricingMode.PER_HOUR, 85.0);
+        getOrCreateOperation("Grinding", OperationPricingMode.PER_HOUR, 40.0);
+        getOrCreateOperation("Powder Coating", OperationPricingMode.PER_HOUR, 80.0);
+        getOrCreateOperation("Assembly", OperationPricingMode.PER_HOUR, 50.0);
+
 
         // ✅ Avoid duplicate seeding
         /* ===============================
@@ -324,6 +332,7 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
+
     private Machine getOrCreateMachine(String name, double power, double ratePerHour, double efficiencyFactor,double minimumCharge) {
         return machineRepository.findByName(name)
                 .orElseGet(() -> machineRepository.save(Machine.builder()
@@ -357,5 +366,21 @@ public class DataInitializer implements CommandLineRunner {
         if (!exists) {
             machineCutParametersRepository.save(parameters);
         }
+    }
+
+    private Operation getOrCreateOperation(
+            String name,
+            OperationPricingMode pricingMode,
+            double rate) {
+
+        return operationRepository.findByNameIgnoreCase(name)
+                .orElseGet(() -> operationRepository.save(
+                        Operation.builder()
+                                .name(name)
+                                .pricingMode(pricingMode)
+                                .rate(rate)
+                                .active(true)
+                                .build()
+                ));
     }
 }
